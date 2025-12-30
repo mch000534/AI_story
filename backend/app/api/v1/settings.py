@@ -88,23 +88,17 @@ async def test_ai_connection(settings_id: int, db: Session = Depends(get_db)):
     
     try:
         client = create_ai_client(settings)
-        success = await client.test_connection()
+        success, message = await client.test_connection()
         
-        if success:
-            return AITestResponse(
-                success=True,
-                message="Connection successful",
-                model=settings.model
-            )
-        else:
-            return AITestResponse(
-                success=False,
-                message="Connection failed - please check your API key and settings"
-            )
+        return AITestResponse(
+            success=success,
+            message=message,
+            model=settings.model if success else None
+        )
     except Exception as e:
         return AITestResponse(
             success=False,
-            message=f"Connection error: {str(e)}"
+            message=f"連接錯誤: {str(e)}"
         )
 
 
