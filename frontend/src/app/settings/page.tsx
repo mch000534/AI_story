@@ -16,24 +16,59 @@ interface AISettings {
     has_api_key: boolean
 }
 
-export default function SettingsPage() {
-    const [settings, setSettings] = useState<AISettings[]>([])
-    const [loading, setLoading] = useState(true)
-    const [showForm, setShowForm] = useState(false)
-    const [testing, setTesting] = useState<number | null>(null)
-    const [testResult, setTestResult] = useState<{ id: number; success: boolean; message: string } | null>(null)
-
-    const [formData, setFormData] = useState({
-        name: '',
+// 預設配置模板
+const PRESET_CONFIGS = {
+    openrouter: {
+        name: 'OpenRouter',
+        provider: 'openrouter',
+        base_url: 'https://openrouter.ai/api/v1',
+        model: 'anthropic/claude-3.5-sonnet',
+        temperature: 0.7,
+        top_p: 1.0,
+        max_tokens: 8192,
+    },
+    openai: {
+        name: 'OpenAI GPT-4',
         provider: 'openai',
-        api_key: '',
         base_url: 'https://api.openai.com/v1',
         model: 'gpt-4',
         temperature: 0.7,
         top_p: 1.0,
         max_tokens: 4096,
-        is_default: false,
-    })
+    },
+    minimax: {
+        name: 'MiniMax M2.1',
+        provider: 'openrouter',
+        base_url: 'https://openrouter.ai/api/v1',
+        model: 'minimax/minimax-m2.1',
+        temperature: 0.7,
+        top_p: 1.0,
+        max_tokens: 8192,
+    }
+}
+
+const DEFAULT_FORM_DATA = {
+    id: null as number | null,
+    name: '',
+    provider: 'openrouter',
+    api_key: '',
+    base_url: 'https://openrouter.ai/api/v1',
+    model: 'anthropic/claude-3.5-sonnet',
+    temperature: 0.7,
+    top_p: 1.0,
+    max_tokens: 8192,
+    is_default: true,
+}
+
+export default function SettingsPage() {
+    const [settings, setSettings] = useState<AISettings[]>([])
+    const [loading, setLoading] = useState(true)
+    const [showForm, setShowForm] = useState(false)
+    const [editMode, setEditMode] = useState(false)
+    const [testing, setTesting] = useState<number | null>(null)
+    const [testResult, setTestResult] = useState<{ id: number; success: boolean; message: string } | null>(null)
+
+    const [formData, setFormData] = useState(DEFAULT_FORM_DATA)
 
     useEffect(() => {
         fetchSettings()
@@ -53,31 +88,86 @@ export default function SettingsPage() {
         }
     }
 
+    const resetForm = () => {
+        setFormData(DEFAULT_FORM_DATA)
+        setEditMode(false)
+        setShowForm(false)
+    }
+
+    const handleAddNew = () => {
+        setFormData(DEFAULT_FORM_DATA)
+        setEditMode(false)
+        setShowForm(true)
+    }
+
+    const handleEdit = (setting: AISettings) => {
+        setFormData({
+            id: setting.id,
+            name: setting.name,
+            provider: setting.provider,
+            api_key: '', // 不顯示已存在的 key
+            base_url: setting.base_url,
+            model: setting.model,
+            temperature: setting.temperature,
+            top_p: setting.top_p,
+            max_tokens: setting.max_tokens,
+            is_default: setting.is_default,
+        })
+        setEditMode(true)
+        setShowForm(true)
+    }
+
+    const applyPreset = (presetKey: keyof typeof PRESET_CONFIGS) => {
+        const preset = PRESET_CONFIGS[presetKey]
+        setFormData(prev => ({
+            ...prev,
+            ...preset,
+        }))
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const res = await fetch('/api/v1/settings/ai', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            })
-            if (res.ok) {
-                fetchSettings()
-                setShowForm(false)
-                setFormData({
-                    name: '',
-                    provider: 'openai',
-                    api_key: '',
-                    base_url: 'https://api.openai.com/v1',
-                    model: 'gpt-4',
-                    temperature: 0.7,
-                    top_p: 1.0,
-                    max_tokens: 4096,
-                    is_default: false,
+            if (editMode && formData.id) {
+                // 編輯模式 - 使用 PUT
+                const updateData: Record<string, unknown> = {
+                    name: formData.name,
+                    provider: formData.provider,
+                    base_url: formData.base_url,
+                    model: formData.model,
+                    temperature: formData.temperature,
+                    top_p: formData.top_p,
+                    max_tokens: formData.max_tokens,
+                    is_default: formData.is_default,
+                }
+                // 只有在用戶輸入新 key 時才更新
+                if (formData.api_key) {
+                    updateData.api_key = formData.api_key
+                }
+
+                const res = await fetch(`/api/v1/settings/ai/${formData.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
                 })
+                if (res.ok) {
+                    fetchSettings()
+                    resetForm()
+                }
+            } else {
+                // 新增模式 - 使用 POST
+                const res = await fetch('/api/v1/settings/ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                })
+                if (res.ok) {
+                    fetchSettings()
+                    resetForm()
+                }
             }
         } catch (error) {
-            console.error('Failed to create settings:', error)
+            console.error('Failed to save settings:', error)
         }
     }
 
@@ -107,6 +197,21 @@ export default function SettingsPage() {
         }
     }
 
+    const handleSetDefault = async (id: number) => {
+        try {
+            const res = await fetch(`/api/v1/settings/ai/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_default: true })
+            })
+            if (res.ok) {
+                fetchSettings()
+            }
+        } catch (error) {
+            console.error('Failed to set default:', error)
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             {/* Header */}
@@ -128,11 +233,25 @@ export default function SettingsPage() {
                             <p className="text-white/60 text-sm mt-1">配置 AI API 連接以啟用內容生成功能</p>
                         </div>
                         <button
-                            onClick={() => setShowForm(true)}
+                            onClick={handleAddNew}
                             className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium"
                         >
                             + 新增配置
                         </button>
+                    </div>
+
+                    {/* OpenRouter 提示 */}
+                    <div className="mb-6 p-4 bg-blue-500/10 rounded-lg border border-blue-500/30">
+                        <div className="flex items-start gap-3">
+                            <span className="text-xl">💡</span>
+                            <div>
+                                <h4 className="font-medium text-blue-300 mb-1">推薦使用 OpenRouter</h4>
+                                <p className="text-sm text-white/60">
+                                    OpenRouter 提供統一的 API 接入多種 AI 模型（Claude、GPT-4、Gemini 等），
+                                    訪問 <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">openrouter.ai</a> 獲取 API Key。
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     {loading ? (
@@ -145,7 +264,7 @@ export default function SettingsPage() {
                             <h3 className="text-lg font-medium text-white mb-2">尚未配置 AI 設定</h3>
                             <p className="text-white/60 text-sm mb-4">請新增 AI API 配置以使用生成功能</p>
                             <button
-                                onClick={() => setShowForm(true)}
+                                onClick={handleAddNew}
                                 className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm"
                             >
                                 新增配置
@@ -159,7 +278,7 @@ export default function SettingsPage() {
                                     className="p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
                                 >
                                     <div className="flex justify-between items-start">
-                                        <div>
+                                        <div className="flex-1">
                                             <div className="flex items-center gap-2">
                                                 <h3 className="font-medium text-white">{setting.name}</h3>
                                                 {setting.is_default && (
@@ -172,19 +291,36 @@ export default function SettingsPage() {
                                             <div className="text-xs text-white/40 mt-1">
                                                 溫度: {setting.temperature} | Top-P: {setting.top_p} | Max Tokens: {setting.max_tokens}
                                             </div>
+                                            <div className="text-xs text-white/40 mt-1">
+                                                {setting.base_url}
+                                            </div>
                                             {testResult?.id === setting.id && (
                                                 <div className={`mt-2 text-sm ${testResult.success ? 'text-green-400' : 'text-red-400'}`}>
                                                     {testResult.success ? '✓ ' : '✗ '}{testResult.message}
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 flex-shrink-0">
+                                            {!setting.is_default && (
+                                                <button
+                                                    onClick={() => handleSetDefault(setting.id)}
+                                                    className="px-3 py-1.5 text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-lg"
+                                                >
+                                                    設為預設
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleEdit(setting)}
+                                                className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg"
+                                            >
+                                                編輯
+                                            </button>
                                             <button
                                                 onClick={() => handleTest(setting.id)}
                                                 disabled={testing === setting.id}
                                                 className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg"
                                             >
-                                                {testing === setting.id ? '測試中...' : '測試連接'}
+                                                {testing === setting.id ? '測試中...' : '測試'}
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(setting.id)}
@@ -201,11 +337,44 @@ export default function SettingsPage() {
                 </section>
             </main>
 
-            {/* Add Settings Modal */}
+            {/* Add/Edit Settings Modal */}
             {showForm && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-slate-800 rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slideUp">
-                        <h2 className="text-xl font-bold text-white mb-4">新增 AI 配置</h2>
+                        <h2 className="text-xl font-bold text-white mb-4">
+                            {editMode ? '編輯 AI 配置' : '新增 AI 配置'}
+                        </h2>
+
+                        {/* 預設配置按鈕 */}
+                        {!editMode && (
+                            <div className="mb-4">
+                                <label className="block text-sm text-white/70 mb-2">快速選擇預設配置</label>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => applyPreset('openrouter')}
+                                        className="px-3 py-1.5 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg border border-blue-500/30"
+                                    >
+                                        🌐 OpenRouter (推薦)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyPreset('minimax')}
+                                        className="px-3 py-1.5 text-xs bg-green-500/20 hover:bg-green-500/30 text-green-300 rounded-lg border border-green-500/30"
+                                    >
+                                        🧠 MiniMax M2.1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => applyPreset('openai')}
+                                        className="px-3 py-1.5 text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg border border-white/20"
+                                    >
+                                        OpenAI GPT-4
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm text-white/70 mb-1">配置名稱</label>
@@ -214,19 +383,21 @@ export default function SettingsPage() {
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none"
-                                    placeholder="例如：OpenAI GPT-4"
+                                    placeholder="例如：OpenRouter Claude"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm text-white/70 mb-1">API Key</label>
+                                <label className="block text-sm text-white/70 mb-1">
+                                    API Key {editMode && <span className="text-white/40">（留空則保持原有）</span>}
+                                </label>
                                 <input
                                     type="password"
                                     value={formData.api_key}
                                     onChange={(e) => setFormData({ ...formData, api_key: e.target.value })}
                                     className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none"
-                                    placeholder="sk-..."
-                                    required
+                                    placeholder={editMode ? "留空保持不變" : "sk-or-v1-..."}
+                                    required={!editMode}
                                 />
                             </div>
                             <div>
@@ -236,7 +407,7 @@ export default function SettingsPage() {
                                     value={formData.base_url}
                                     onChange={(e) => setFormData({ ...formData, base_url: e.target.value })}
                                     className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none"
-                                    placeholder="https://api.openai.com/v1"
+                                    placeholder="https://openrouter.ai/api/v1"
                                 />
                             </div>
                             <div>
@@ -246,8 +417,11 @@ export default function SettingsPage() {
                                     value={formData.model}
                                     onChange={(e) => setFormData({ ...formData, model: e.target.value })}
                                     className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none"
-                                    placeholder="gpt-4"
+                                    placeholder="anthropic/claude-3.5-sonnet"
                                 />
+                                <p className="text-xs text-white/40 mt-1">
+                                    OpenRouter 模型列表: <a href="https://openrouter.ai/models" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">openrouter.ai/models</a>
+                                </p>
                             </div>
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
@@ -282,7 +456,7 @@ export default function SettingsPage() {
                                         onChange={(e) => setFormData({ ...formData, max_tokens: parseInt(e.target.value) })}
                                         className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none"
                                         min="100"
-                                        max="16000"
+                                        max="32000"
                                     />
                                 </div>
                             </div>
@@ -299,7 +473,7 @@ export default function SettingsPage() {
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
-                                    onClick={() => setShowForm(false)}
+                                    onClick={resetForm}
                                     className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg"
                                 >
                                     取消
@@ -308,7 +482,7 @@ export default function SettingsPage() {
                                     type="submit"
                                     className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg"
                                 >
-                                    保存
+                                    {editMode ? '更新' : '保存'}
                                 </button>
                             </div>
                         </form>
