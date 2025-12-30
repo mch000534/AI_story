@@ -221,17 +221,17 @@
   - [x] `@/components`, `@/lib`, `@/hooks` 等
 
 ### 3.2 設計系統與基礎組件
-- [ ] 設置主題系統
-  - [ ] 配置 Tailwind 主題 (colors, fonts)
-  - [ ] 創建 CSS 變數（深色/淺色模式）
-  - [ ] `styles/globals.css` 全局樣式
-- [ ] 實現基礎 UI 組件
-  - [ ] Button (多種變體：primary, secondary, ghost)
-  - [ ] Input (文字輸入框)
+- [x] 設置主題系統
+  - [x] 配置 Tailwind 主題 (colors, fonts)
+  - [x] 創建 CSS 變數（深色/淺色模式）
+  - [x] `styles/globals.css` 全局樣式
+- [/] 實現基礎 UI 組件
+  - [x] Button (多種變體：primary, secondary, ghost)
+  - [x] Input (文字輸入框)
   - [ ] Select (下拉選單)
-  - [ ] Modal (彈窗)
+  - [x] Modal (彈窗)
   - [ ] Toast (提示訊息)
-  - [ ] Loading (載入動畫)
+  - [x] Loading (載入動畫)
   - [ ] Slider (溫度、top-p 參數調整)
 
 ### 3.3 API 客戶端層
@@ -252,11 +252,11 @@
   - [ ] 消息處理
 
 ### 3.4 TypeScript 類型定義
-- [ ] 定義數據類型 (`types/`)
-  - [ ] `project.ts` - Project, Stage, StageType, StageStatus
-  - [ ] `api.ts` - API 請求/響應類型
-  - [ ] `settings.ts` - AISettings
-  - [ ] `common.ts` - 通用類型（Pagination 等）
+- [x] 定義數據類型 (`types/`)
+  - [x] `project.ts` - Project, Stage, StageType, StageStatus
+  - [x] `api.ts` - API 請求/響應類型
+  - [x] `settings.ts` - AISettings
+  - [x] `common.ts` - 通用類型（Pagination 等）
 
 ### 3.5 狀態管理 (Zustand)
 - [ ] **ProjectStore** (`stores/projectStore.ts`)
@@ -283,62 +283,55 @@
   - [ ] 階段導航和解鎖邏輯
 
 ### 3.7 核心頁面組件
-- [ ] **首頁/專案列表** (`app/page.tsx`)
-  - [ ] 顯示所有專案（卡片網格）
+- [x] **首頁/專案列表** (`app/page.tsx`)
+  - [x] 顯示所有專案（卡片網格）
   - [ ] 搜索和篩選功能
-  - [ ] 創建新專案按鈕
-- [ ] **專案編輯頁** (`app/project/[id]/page.tsx`)
-  - [ ] 頁面布局（Header + Sidebar + Main）
-  - [ ] 整合所有子組件
-- [ ] **設定頁** (`app/settings/page.tsx`)
-  - [ ] AI 配置管理界面
+  - [x] 創建新專案按鈕
+- [x] **專案編輯頁** (`app/project/[id]/page.tsx`)
+  - [x] 頁面布局（Header + Sidebar + Main）
+  - [x] 整合所有子組件
+- [x] **設定頁** (`app/settings/page.tsx`)
+  - [x] AI 配置管理界面
   - [ ] 主題切換
   - [ ] 關於頁面
 
 ### 3.8 專案編輯器組件
-- [ ] **Layout 組件**
-  - [ ] `Header` - 導航欄、專案標題、匯出按鈕
-  - [ ] `Sidebar` - 專案列表、設定入口
+- [x] **Layout 組件**
+  - [x] `Header` - 導航欄、專案標題、匯出按鈕
+  - [x] `Sidebar` - 階段導航
   - [ ] `Footer` (可選)
-- [ ] **StageNavigator** (`components/workflow/StageNavigator.tsx`)
-  - [ ] 顯示 8 個階段的進度條
-  - [ ] 根據 status 顯示不同顏色/圖標
-  - [ ] 點擊切換階段
-  - [ ] 解鎖邏輯（前一階段完成才可點擊）
-- [ ] **EditorPanel** (`components/editor/EditorPanel.tsx`)
-  - [ ] 整合 RichTextEditor
-  - [ ] 整合 AIGenerateButton
-  - [ ] 整合 VersionHistory 面板
+- [x] **StageNavigator** (在 project/[id]/page.tsx 中實現)
+  - [x] 顯示 8 個階段的進度條
+  - [x] 根據 status 顯示不同顏色/圖標
+  - [x] 點擊切換階段
+  - [x] 解鎖邏輯（前一階段完成才可點擊）
+- [x] **EditorPanel** (在 project/[id]/page.tsx 中實現)
+  - [x] 文字編輯器
+  - [x] AI 生成按鈕
+  - [x] 保存按鈕
 - [ ] **RichTextEditor** (`components/editor/RichTextEditor.tsx`)
   - [ ] 使用 Tiptap 編輯器
   - [ ] 支持 Markdown
   - [ ] 自動保存（debounce）
-  - [ ] 保存狀態指示器
-- [ ] **AIGenerateButton** (`components/workflow/AIGenerateButton.tsx`)
-  - [ ] 生成按鈕
-  - [ ] Loading 動畫
-  - [ ] 取消生成功能
-  - [ ] 錯誤處理和重試
-- [ ] **VersionHistory** (`components/editor/VersionHistory.tsx`)
-  - [ ] 顯示版本列表
-  - [ ] 版本比較功能
-  - [ ] 恢復到指定版本
+- [x] **VersionHistory** (`components/editor/VersionHistory.tsx`)
+  - [x] 顯示版本列表
+  - [x] 版本預覽功能
+  - [x] 恢復到指定版本
 
 ### 3.9 模態框組件
-- [ ] **SettingsModal** (`components/settings/SettingsModal.tsx`)
-  - [ ] AI 配置表單
-  - [ ] 模型選擇下拉選單
-  - [ ] Temperature/Top-P 滑桿
-  - [ ] 測試連接按鈕
-  - [ ] 保存/取消
-- [ ] **ExportModal** (`components/ExportModal.tsx`)
-  - [ ] 選擇匯出格式（PDF, Word, Fountain, Excel）
-  - [ ] 選擇匯出範圍
-  - [ ] 下載按鈕
-- [ ] **CreateProjectModal** (`components/CreateProjectModal.tsx`)
-  - [ ] 專案名稱、描述輸入
-  - [ ] 分類/標籤選擇
-  - [ ] 創建按鈕
+- [x] **SettingsModal** (在 settings/page.tsx 中實現)
+  - [x] AI 配置表單
+  - [x] 模型選擇輸入
+  - [x] Temperature/Top-P 輸入
+  - [x] 測試連接按鈕
+  - [x] 保存/取消
+- [x] **ExportModal** (`components/ExportModal.tsx`)
+  - [x] 選擇匯出格式（PDF, Word, Fountain, Excel）
+  - [x] 完整專案 ZIP 匯出
+  - [x] 下載按鈕
+- [x] **CreateProjectModal** (在 page.tsx 中實現)
+  - [x] 專案名稱、描述輸入
+  - [x] 創建按鈕
 - [ ] **VersionCompareModal** (`components/editor/VersionCompareModal.tsx`)
   - [ ] 並排顯示兩個版本
   - [ ] Diff 高亮顯示
