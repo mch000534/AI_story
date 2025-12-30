@@ -7,19 +7,19 @@ from app.models.enums import StageType, STAGE_NAMES, STAGE_DEPENDENCIES
 
 # Prompt templates for each stage
 STAGE_PROMPTS = {
-    StageType.IDEA: """你是一位專業的故事開發顧問。請根據以下靈感發想，提供更深入的概念發展建議：
+    StageType.IDEA: """你是一位專業的故事開發顧問。請為以下專案發想創意概念：
 
-用戶靈感：
-{idea}
+專案名稱：{project_name}
+用戶輸入（如有）：{idea}
 
-請從以下幾個方面進行擴展：
+請從以下幾個方面進行發想和擴展：
 1. 故事類型與調性
-2. 核心衝突
-3. 主題思想
+2. 核心衝突與戲劇張力
+3. 主題思想與訊息
 4. 目標受眾
-5. 獨特賣點
+5. 獨特賣點與創新點
 
-請用繁體中文回覆，並保持專業但有創意的風格。""",
+請用繁體中文回覆，提供 3-5 個不同方向的創意概念，每個概念包含簡短的故事核心和發展潛力說明。""",
 
     StageType.STORY: """你是一位經驗豐富的劇本開發專家。請根據以下靈感概念，撰寫一份完整的故事大綱：
 
