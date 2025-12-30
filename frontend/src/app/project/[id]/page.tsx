@@ -27,6 +27,9 @@ export default function ProjectPage() {
     const [loading, setLoading] = useState(true)
     const [showExport, setShowExport] = useState(false)
     const [showVersions, setShowVersions] = useState(false)
+    const [showEditProject, setShowEditProject] = useState(false)
+    const [editName, setEditName] = useState('')
+    const [editDescription, setEditDescription] = useState('')
 
     useEffect(() => {
         fetchProject()
@@ -123,6 +126,41 @@ export default function ProjectPage() {
         return status !== 'locked'
     }
 
+    const handleUpdateProject = async () => {
+        if (!project) return
+        try {
+            const res = await fetch(`/api/v1/projects/${projectId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: editName,
+                    description: editDescription
+                })
+            })
+            if (res.ok) {
+                const updated = await res.json()
+                setProject(updated)
+                setShowEditProject(false)
+            }
+        } catch (error) {
+            console.error('Failed to update project:', error)
+        }
+    }
+
+    const handleDeleteProject = async () => {
+        if (!confirm('確定要刪除此專案嗎？此操作無法恢復。')) return
+        try {
+            const res = await fetch(`/api/v1/projects/${projectId}`, {
+                method: 'DELETE'
+            })
+            if (res.ok) {
+                router.push('/')
+            }
+        } catch (error) {
+            console.error('Failed to delete project:', error)
+        }
+    }
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
@@ -141,6 +179,19 @@ export default function ProjectPage() {
                             ← 返回
                         </Link>
                         <h1 className="text-xl font-semibold text-white">{project?.name}</h1>
+                        <button
+                            onClick={() => {
+                                if (project) {
+                                    setEditName(project.name)
+                                    setEditDescription(project.description)
+                                    setShowEditProject(true)
+                                }
+                            }}
+                            className="text-white/50 hover:text-white text-sm"
+                            title="編輯專案"
+                        >
+                            ✏️
+                        </button>
                     </div>
                     <div className="flex gap-3">
                         <Link
@@ -279,6 +330,56 @@ export default function ProjectPage() {
                     projectName={project.name}
                     onClose={() => setShowExport(false)}
                 />
+            )}
+
+            {/* Edit Project Modal */}
+            {showEditProject && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md animate-slideUp">
+                        <h2 className="text-xl font-bold text-white mb-4">編輯專案</h2>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm text-white/70 mb-1">專案名稱</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-white/70 mb-1">描述</label>
+                                <textarea
+                                    value={editDescription}
+                                    onChange={(e) => setEditDescription(e.target.value)}
+                                    className="w-full px-4 py-2 bg-slate-700 border border-white/10 rounded-lg text-white focus:border-purple-500 focus:outline-none h-24 resize-none"
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setShowEditProject(false)}
+                                    className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg"
+                                >
+                                    取消
+                                </button>
+                                <button
+                                    onClick={handleUpdateProject}
+                                    className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg"
+                                >
+                                    保存
+                                </button>
+                            </div>
+                            <div className="pt-4 border-t border-white/10">
+                                <button
+                                    onClick={handleDeleteProject}
+                                    className="w-full px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm"
+                                >
+                                    🗑️ 刪除此專案
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     )
