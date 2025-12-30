@@ -53,7 +53,7 @@ class ProjectService:
             .where(Project.is_deleted == False)
         )
         result = self.db.execute(stmt)
-        return result.scalar_one_or_none()
+        return result.unique().scalar_one_or_none()
     
     def list_projects(
         self, 
