@@ -2,7 +2,7 @@
 
 > **專案狀態追蹤**  
 > 最後更新：2025-12-30  
-> 當前階段：需求分析完成，準備進入設計階段
+> 當前階段：階段 1-2 完成，進入前端核心開發
 
 ---
 
@@ -36,45 +36,45 @@
 ## 階段 1：環境與基礎設施搭建
 
 ### 1.1 開發環境配置
-- [ ] 創建專案 Git 倉庫
-- [ ] 設置 .gitignore 文件
+- [x] 創建專案 Git 倉庫
+- [x] 設置 .gitignore 文件
 - [ ] 配置 pre-commit hooks（程式碼格式化）
-- [ ] 編寫 README.md（專案說明、安裝指南）
+- [x] 編寫 README.md（專案說明、安裝指南）
 
 ### 1.2 後端基礎設施
-- [ ] 初始化 FastAPI 專案結構
-  - [ ] 創建 `backend/` 目錄
-  - [ ] 設置 `pyproject.toml` 和 `requirements.txt`
-  - [ ] 創建基本目錄結構（app/, tests/, alembic/）
-- [ ] 配置開發環境
+- [x] 初始化 FastAPI 專案結構
+  - [x] 創建 `backend/` 目錄
+  - [x] 設置 `pyproject.toml` 和 `requirements.txt`
+  - [x] 創建基本目錄結構（app/, tests/, alembic/）
+- [/] 配置開發環境
   - [ ] 設置虛擬環境 (venv 或 poetry)
   - [ ] 安裝核心依賴（FastAPI, SQLAlchemy, Uvicorn）
-  - [ ] 配置 `.env.example` 模板
-- [ ] 設置程式碼規範工具
-  - [ ] 配置 Black（程式碼格式化）
-  - [ ] 配置 isort（import 排序）
-  - [ ] 配置 flake8 或 ruff（linting）
-  - [ ] 配置 mypy（類型檢查，可選）
+  - [x] 配置 `.env.example` 模板
+- [x] 設置程式碼規範工具
+  - [x] 配置 Black（程式碼格式化）
+  - [x] 配置 isort（import 排序）
+  - [x] 配置 flake8 或 ruff（linting）
+  - [x] 配置 mypy（類型檢查，可選）
 
 ### 1.3 前端基礎設施
-- [ ] 初始化 Next.js 專案
-  - [ ] 執行 `npx create-next-app@latest frontend --typescript --tailwind --app`
-  - [ ] 配置 TypeScript (tsconfig.json)
-- [ ] 安裝核心依賴
+- [x] 初始化 Next.js 專案
+  - [x] 手動創建前端專案結構（因網路問題）
+  - [x] 配置 TypeScript (tsconfig.json)
+- [x] 安裝核心依賴（已在 package.json 中定義）
   - [ ] UI 庫：shadcn/ui 或 Material-UI
-  - [ ] 狀態管理：Zustand
-  - [ ] API 請求：axios 或 fetch wrapper
-  - [ ] 表單處理：react-hook-form + zod
+  - [x] 狀態管理：Zustand
+  - [x] API 請求：axios 或 fetch wrapper
+  - [x] 表單處理：react-hook-form + zod
   - [ ] 富文本編輯器：Tiptap 或 Lexical
-- [ ] 設置程式碼規範
-  - [ ] 配置 ESLint
+- [/] 設置程式碼規範
+  - [x] 配置 ESLint
   - [ ] 配置 Prettier
   - [ ] 設置 lint-staged
 
 ### 1.4 Docker 配置
-- [ ] 編寫 `backend/Dockerfile`
-- [ ] 編寫 `frontend/Dockerfile`
-- [ ] 編寫 `docker-compose.yml`
+- [x] 編寫 `backend/Dockerfile`
+- [x] 編寫 `frontend/Dockerfile`
+- [x] 編寫 `docker-compose.yml`
 - [ ] 測試本地 Docker 構建和運行
 
 ---
@@ -82,50 +82,50 @@
 ## 階段 2：後端核心開發
 
 ### 2.1 數據庫層
-- [ ] 設置 SQLAlchemy 基礎配置
-  - [ ] 創建 `db/base.py` 和 `db/session.py`
-  - [ ] 配置 SQLite 連接
-  - [ ] 設置依賴注入 (get_db)
-- [ ] 定義數據模型
-  - [ ] 創建 `models/project.py` (Project 模型)
-  - [ ] 創建 `models/stage.py` (Stage 模型)
-  - [ ] 創建 `models/stage_version.py` (StageVersion 模型)
-  - [ ] 創建 `models/ai_settings.py` (AISettings 模型)
-  - [ ] 定義枚舉類型 (StageType, StageStatus)
-  - [ ] 添加索引和外鍵約束
-- [ ] 設置 Alembic 數據庫遷移
-  - [ ] 初始化 Alembic (`alembic init`)
-  - [ ] 配置 `alembic.ini` 和 `env.py`
+- [x] 設置 SQLAlchemy 基礎配置
+  - [x] 創建 `db/base.py` 和 `db/session.py`
+  - [x] 配置 SQLite 連接
+  - [x] 設置依賴注入 (get_db)
+- [x] 定義數據模型
+  - [x] 創建 `models/project.py` (Project 模型)
+  - [x] 創建 `models/stage.py` (Stage 模型)
+  - [x] 創建 `models/stage_version.py` (StageVersion 模型)
+  - [x] 創建 `models/ai_settings.py` (AISettings 模型)
+  - [x] 定義枚舉類型 (StageType, StageStatus)
+  - [x] 添加索引和外鍵約束
+- [x] 設置 Alembic 數據庫遷移
+  - [x] 初始化 Alembic (`alembic init`)
+  - [x] 配置 `alembic.ini` 和 `env.py`
   - [ ] 生成初始遷移腳本
   - [ ] 測試遷移：`alembic upgrade head`
 
 ### 2.2 Pydantic Schemas
-- [ ] 定義請求/響應模型
-  - [ ] `schemas/project.py` (ProjectCreate, ProjectUpdate, ProjectResponse)
-  - [ ] `schemas/stage.py` (StageUpdate, StageResponse)
-  - [ ] `schemas/ai.py` (AIGenerateRequest, AIGenerateResponse)
-  - [ ] `schemas/settings.py` (AISettingsCreate, AISettingsResponse)
-- [ ] 添加數據驗證規則
-  - [ ] 字段長度限制
-  - [ ] 自定義驗證器
+- [x] 定義請求/響應模型
+  - [x] `schemas/project.py` (ProjectCreate, ProjectUpdate, ProjectResponse)
+  - [x] `schemas/stage.py` (StageUpdate, StageResponse)
+  - [x] `schemas/ai.py` (AIGenerateRequest, AIGenerateResponse)
+  - [x] `schemas/settings.py` (AISettingsCreate, AISettingsResponse)
+- [x] 添加數據驗證規則
+  - [x] 字段長度限制
+  - [x] 自定義驗證器
 
 ### 2.3 核心服務層
-- [ ] **ProjectService** (`services/project_service.py`)
-  - [ ] `create_project()` - 創建專案並初始化 8 個階段
-  - [ ] `get_project()` - 獲取專案詳情
-  - [ ] `list_projects()` - 分頁查詢專案列表
-  - [ ] `update_project()` - 更新專案基本信息
-  - [ ] `delete_project()` - 軟刪除專案
-  - [ ] `get_stage_context()` - 獲取階段生成所需的上下文
-- [ ] **AIService** (`services/ai_service.py`)
-  - [ ] `generate_content()` - 調用 AI API 生成內容
-  - [ ] `stream_generate()` - Streaming 生成
-  - [ ] `_create_client()` - 根據配置創建 AI 客戶端
+- [x] **ProjectService** (`services/project_service.py`)
+  - [x] `create_project()` - 創建專案並初始化 8 個階段
+  - [x] `get_project()` - 獲取專案詳情
+  - [x] `list_projects()` - 分頁查詢專案列表
+  - [x] `update_project()` - 更新專案基本信息
+  - [x] `delete_project()` - 軟刪除專案
+  - [x] `get_stage_context()` - 獲取階段生成所需的上下文
+- [x] **AIService** (`services/ai_service.py`)
+  - [x] `generate_content()` - 調用 AI API 生成內容
+  - [x] `stream_generate()` - Streaming 生成
+  - [x] `_create_client()` - 根據配置創建 AI 客戶端
   - [ ] 錯誤處理和重試邏輯
-- [ ] **PromptService** (`services/prompt_service.py`)
-  - [ ] 定義 8 個階段的提示詞模板
-  - [ ] `build_prompt()` - 組裝完整提示詞
-  - [ ] `_build_context()` - 根據階段依賴獲取上下文
+- [x] **PromptService** (`services/prompt_service.py`)
+  - [x] 定義 8 個階段的提示詞模板
+  - [x] `build_prompt()` - 組裝完整提示詞
+  - [x] `_build_context()` - 根據階段依賴獲取上下文
 - [ ] **ExportService** (`services/export_service.py`)
   - [ ] `export_script_pdf()` - 匯出劇本為 PDF
   - [ ] `export_fountain()` - 匯出 Fountain 格式
@@ -133,42 +133,42 @@
   - [ ] `export_complete_zip()` - 打包完整專案
 
 ### 2.4 AI 客戶端實現
-- [ ] 創建抽象基類 (`utils/ai_client.py`)
-  - [ ] 定義 `BaseAIClient` 抽象類
-  - [ ] `generate()` 抽象方法
-- [ ] 實現 OpenAI 客戶端
-  - [ ] `OpenAIClient` 類
-  - [ ] 同步生成方法
-  - [ ] Streaming 生成方法
-  - [ ] SSE 解析邏輯
-- [ ] 實現工廠函數
-  - [ ] `create_ai_client()` - 根據配置創建客戶端
+- [x] 創建抽象基類 (`utils/ai_client.py`)
+  - [x] 定義 `BaseAIClient` 抽象類
+  - [x] `generate()` 抽象方法
+- [x] 實現 OpenAI 客戶端
+  - [x] `OpenAIClient` 類
+  - [x] 同步生成方法
+  - [x] Streaming 生成方法
+  - [x] SSE 解析邏輯
+- [x] 實現工廠函數
+  - [x] `create_ai_client()` - 根據配置創建客戶端
 - [ ] 錯誤處理
   - [ ] API 錯誤（401, 429, 500）
   - [ ] 網絡超時
   - [ ] 重試機制（exponential backoff）
 
 ### 2.5 API 路由實現
-- [ ] **專案管理 API** (`api/v1/projects.py`)
-  - [ ] `POST /api/v1/projects` - 創建專案
-  - [ ] `GET /api/v1/projects` - 列表查詢（分頁）
-  - [ ] `GET /api/v1/projects/{id}` - 獲取詳情
-  - [ ] `PUT /api/v1/projects/{id}` - 更新專案
-  - [ ] `DELETE /api/v1/projects/{id}` - 刪除專案
-- [ ] **階段管理 API** (`api/v1/projects.py`)
-  - [ ] `GET /api/v1/projects/{id}/stages/{type}` - 獲取階段
-  - [ ] `PUT /api/v1/projects/{id}/stages/{type}` - 更新階段內容
-  - [ ] `GET /api/v1/projects/{id}/stages/{type}/versions` - 版本歷史
-  - [ ] `POST /api/v1/projects/{id}/stages/{type}/restore` - 恢復版本
-- [ ] **AI 生成 API** (`api/v1/ai.py`)
-  - [ ] `POST /api/v1/ai/generate` - 生成內容（同步）
-  - [ ] `WebSocket /ws/ai/generate` - Streaming 生成
-- [ ] **設定管理 API** (`api/v1/settings.py`)
-  - [ ] `GET /api/v1/settings/ai` - 獲取所有配置
-  - [ ] `POST /api/v1/settings/ai` - 創建配置
-  - [ ] `PUT /api/v1/settings/ai/{id}` - 更新配置
-  - [ ] `DELETE /api/v1/settings/ai/{id}` - 刪除配置
-  - [ ] `POST /api/v1/settings/ai/{id}/test` - 測試連接
+- [x] **專案管理 API** (`api/v1/projects.py`)
+  - [x] `POST /api/v1/projects` - 創建專案
+  - [x] `GET /api/v1/projects` - 列表查詢（分頁）
+  - [x] `GET /api/v1/projects/{id}` - 獲取詳情
+  - [x] `PUT /api/v1/projects/{id}` - 更新專案
+  - [x] `DELETE /api/v1/projects/{id}` - 刪除專案
+- [x] **階段管理 API** (`api/v1/projects.py`)
+  - [x] `GET /api/v1/projects/{id}/stages/{type}` - 獲取階段
+  - [x] `PUT /api/v1/projects/{id}/stages/{type}` - 更新階段內容
+  - [x] `GET /api/v1/projects/{id}/stages/{type}/versions` - 版本歷史
+  - [x] `POST /api/v1/projects/{id}/stages/{type}/restore` - 恢復版本
+- [x] **AI 生成 API** (`api/v1/ai.py`)
+  - [x] `POST /api/v1/ai/generate` - 生成內容（同步）
+  - [x] `WebSocket /ws/ai/generate` - Streaming 生成
+- [x] **設定管理 API** (`api/v1/settings.py`)
+  - [x] `GET /api/v1/settings/ai` - 獲取所有配置
+  - [x] `POST /api/v1/settings/ai` - 創建配置
+  - [x] `PUT /api/v1/settings/ai/{id}` - 更新配置
+  - [x] `DELETE /api/v1/settings/ai/{id}` - 刪除配置
+  - [x] `POST /api/v1/settings/ai/{id}/test` - 測試連接
 - [ ] **匯出 API** (`api/v1/export.py`)
   - [ ] `POST /api/v1/export/script` - 匯出劇本
   - [ ] `POST /api/v1/export/storyboard` - 匯出分鏡
@@ -176,17 +176,17 @@
   - [ ] `POST /api/v1/export/complete` - 匯出完整專案
 
 ### 2.6 安全性實現
-- [ ] API Key 加密/解密 (`core/security.py`)
-  - [ ] 生成 Fernet 加密密鑰
-  - [ ] `encrypt_api_key()` 函數
-  - [ ] `decrypt_api_key()` 函數
-- [ ] 環境變數管理
-  - [ ] 使用 python-dotenv
-  - [ ] 配置類 (`core/config.py`)
-- [ ] 輸入驗證（通過 Pydantic 自動處理）
+- [x] API Key 加密/解密 (`core/security.py`)
+  - [x] 生成 Fernet 加密密鑰
+  - [x] `encrypt_api_key()` 函數
+  - [x] `decrypt_api_key()` 函數
+- [x] 環境變數管理
+  - [x] 使用 python-dotenv
+  - [x] 配置類 (`core/config.py`)
+- [x] 輸入驗證（通過 Pydantic 自動處理）
 
 ### 2.7 中間件配置
-- [ ] CORS 中間件 (`middleware/cors.py`)
+- [x] CORS 中間件（在 main.py 中配置）
 - [ ] 速率限制中間件 (`middleware/rate_limit.py`)
   - [ ] 使用 slowapi
   - [ ] 設置 AI 生成端點限制（如 10/分鐘）
@@ -195,12 +195,12 @@
   - [ ] 統一錯誤響應格式
 
 ### 2.8 應用入口
-- [ ] 創建 FastAPI 應用 (`app/main.py`)
-  - [ ] 初始化 FastAPI app
-  - [ ] 註冊所有路由
-  - [ ] 添加中間件
-  - [ ] 配置 CORS
-  - [ ] 設置啟動/關閉事件
+- [x] 創建 FastAPI 應用 (`app/main.py`)
+  - [x] 初始化 FastAPI app
+  - [x] 註冊所有路由
+  - [x] 添加中間件
+  - [x] 配置 CORS
+  - [x] 設置啟動/關閉事件
 - [ ] 測試運行
   - [ ] `uvicorn app.main:app --reload`
   - [ ] 訪問 `/docs` 查看自動生成的 API 文檔
@@ -210,15 +210,15 @@
 ## 階段 3：前端核心開發
 
 ### 3.1 項目結構設置
-- [ ] 創建目錄結構
-  - [ ] `components/` (UI 組件)
-  - [ ] `lib/` (工具庫)
-  - [ ] `hooks/` (自定義 Hooks)
-  - [ ] `stores/` (狀態管理)
-  - [ ] `types/` (TypeScript 類型)
-  - [ ] `constants/` (常數定義)
-- [ ] 配置路徑別名 (tsconfig.json)
-  - [ ] `@/components`, `@/lib`, `@/hooks` 等
+- [x] 創建目錄結構
+  - [x] `components/` (UI 組件)
+  - [x] `lib/` (工具庫)
+  - [x] `hooks/` (自定義 Hooks)
+  - [x] `stores/` (狀態管理)
+  - [x] `types/` (TypeScript 類型)
+  - [x] `constants/` (常數定義)
+- [x] 配置路徑別名 (tsconfig.json)
+  - [x] `@/components`, `@/lib`, `@/hooks` 等
 
 ### 3.2 設計系統與基礎組件
 - [ ] 設置主題系統
