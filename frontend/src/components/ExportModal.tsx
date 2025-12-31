@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { apiClient } from '@/lib/api/client'
 import { API_ENDPOINTS } from '@/lib/api/endpoints'
+import { useToast } from '@/hooks/useToast'
 
 interface ExportModalProps {
     projectId: number
@@ -12,6 +13,7 @@ interface ExportModalProps {
 
 export default function ExportModal({ projectId, projectName, onClose }: ExportModalProps) {
     const [exporting, setExporting] = useState<string | null>(null)
+    const { showToast } = useToast()
 
     const handleExport = async (type: string, format?: string) => {
         setExporting(type)
@@ -80,13 +82,15 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
                 a.click()
                 window.URL.revokeObjectURL(downloadUrl)
                 a.remove()
+
+                showToast('匯出成功', 'success')
             } else {
-                alert('匯出失敗')
+                showToast('匯出失敗', 'error')
             }
         } catch (error: any) {
             console.error('Export failed:', error)
             const message = error.message || '匯出失敗，請檢查網絡連接或稍後再試'
-            alert(`匯出失敗: ${message}`)
+            showToast(`匯出失敗: ${message}`, 'error')
         } finally {
             setExporting(null)
         }

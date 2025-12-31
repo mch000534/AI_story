@@ -15,11 +15,14 @@ import { useAI } from '@/hooks/useAI'
 import { useAutoSave } from '@/hooks/useAutoSave'
 import { useStageNavigation } from '@/hooks/useStageNavigation'
 import { useUIStore } from '@/stores/uiStore'
+import { useToast } from '@/hooks/useToast'
 
 export default function ProjectPage() {
     const params = useParams()
     const router = useRouter()
     const projectId = params.id as string
+
+    const { showToast } = useToast()
 
     const { currentProject: project, getProject, updateProject, deleteProject } = useProjectStore()
     const { stages, fetchStages, updateStageContent, isGenerating: isStoreGenerating, setIsGenerating: setStoreIsGenerating } = useStageStore()
@@ -30,8 +33,11 @@ export default function ProjectPage() {
         isGenerating,
         generate
     } = useAI({
-        onComplete: () => fetchStages(parseInt(projectId)),
-        onError: (err) => alert(`AI 生成錯誤: ${err}`)
+        onComplete: () => {
+            fetchStages(parseInt(projectId))
+            showToast('AI 生成完成', 'success')
+        },
+        onError: (err) => showToast(`AI 生成錯誤: ${err}`, 'error')
     })
 
     // Navigation
