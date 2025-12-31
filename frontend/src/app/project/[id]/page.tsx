@@ -8,156 +8,83 @@ import ExportModal from '@/components/ExportModal'
 import PromptEditorModal from '@/components/PromptEditorModal'
 import VersionHistory from '@/components/editor/VersionHistory'
 
-interface Project {
-    id: number
-    name: string
-    description: string
-}
+import { useProjectStore } from '@/stores/projectStore'
+import { useStageStore } from '@/stores/stageStore'
+import { useAI } from '@/hooks/useAI'
+import { useAutoSave } from '@/hooks/useAutoSave'
 
 export default function ProjectPage() {
     const params = useParams()
     const router = useRouter()
     const projectId = params.id as string
 
-    const [project, setProject] = useState<Project | null>(null)
-    const [stages, setStages] = useState<Record<StageType, Stage>>({} as Record<StageType, Stage>)
+    const { currentProject: project, getProject, updateProject, deleteProject } = useProjectStore()
+    const { stages, fetchStages, updateStageContent, isGenerating: isStoreGenerating, setIsGenerating: setStoreIsGenerating } = useStageStore()
+
+    const {
+        content,
+        setContent,
+        isGenerating,
+        generate
+    } = useAI({
+        onComplete: () => fetchStages(parseInt(projectId)),
+        onError: (err) => alert(`AI 生成錯誤: ${err}`)
+    })
+
+    // Local state
     const [currentStage, setCurrentStage] = useState<StageType>('idea')
-    const [content, setContent] = useState('')
-    const [isGenerating, setIsGenerating] = useState(false)
-    const [isSaving, setIsSaving] = useState(false)
-    const [loading, setLoading] = useState(true)
+
+    // Auto Save
+    const { isSaving, hasUnsavedChanges, saveNow } = useAutoSave({
+        value: content,
+        enabled: !isGenerating && !isStoreGenerating,
+        onSave: async (newContent) => {
+            if (projectId) {
+                await updateStageContent(parseInt(projectId), currentStage, newContent)
+            }
+        }
+    })
+
     const [showExport, setShowExport] = useState(false)
-    const [showVersions, setShowVersions] = useState(false)
     const [showPromptEdit, setShowPromptEdit] = useState(false)
     const [showEditProject, setShowEditProject] = useState(false)
     const [editName, setEditName] = useState('')
     const [editDescription, setEditDescription] = useState('')
 
+    // Load data
     useEffect(() => {
-        fetchProject()
-        fetchStages()
-    }, [projectId])
+        if (projectId) {
+            getProject(parseInt(projectId))
+            fetchStages(parseInt(projectId))
+        }
+    }, [projectId, getProject, fetchStages])
 
+    // Sync content from store to local state when stage changes 
+    // or when store content updates (e.g. from AI)
     useEffect(() => {
         if (stages[currentStage]) {
+            // Only update local content if we are not typing? 
+            // Actually, we should sync completely. 
+            // The typing updates local state `content`. 
+            // If store updates (e.g. AI streaming finishes), we update local.
+            // But we need to be careful not to overwrite user input if they act simultaneously (rare).
+            // For now, simple sync.
             setContent(stages[currentStage].content || '')
         }
     }, [currentStage, stages])
 
-    const fetchProject = async () => {
-        try {
-            const res = await fetch(`/api/v1/projects/${projectId}`, { cache: 'no-store' })
-            if (res.ok) {
-                const data = await res.json()
-                setProject(data)
-            }
-        } catch (error) {
-            console.error('Failed to fetch project:', error)
-        }
-    }
-
-    const fetchStages = async () => {
-        try {
-            const stageData: Record<StageType, Stage> = {} as Record<StageType, Stage>
-            for (const stageType of STAGE_ORDER) {
-                const res = await fetch(`/api/v1/projects/${projectId}/stages/${stageType}`, { cache: 'no-store' })
-                if (res.ok) {
-                    stageData[stageType] = await res.json()
-                }
-            }
-            setStages(stageData)
-        } catch (error) {
-            console.error('Failed to fetch stages:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
+    // Handle save manually (e.g. on blur or button click)
     const handleSave = async () => {
-        setIsSaving(true)
-        try {
-            const res = await fetch(`/api/v1/projects/${projectId}/stages/${currentStage}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
-            })
-            if (res.ok) {
-                const updatedStage = await res.json()
-                setStages(prev => ({ ...prev, [currentStage]: updatedStage }))
-            }
-        } catch (error) {
-            console.error('Failed to save:', error)
-        } finally {
-            setIsSaving(false)
-        }
+        await saveNow()
     }
 
-    const wsRef = useRef<WebSocket | null>(null)
-
-    // Cleanup WebSocket on unmount
+    // Sync store generating state with local hook state (optional, if we want store to know)
     useEffect(() => {
-        return () => {
-            if (wsRef.current) {
-                wsRef.current.close()
-            }
-        }
-    }, [])
+        setStoreIsGenerating(isGenerating)
+    }, [isGenerating, setStoreIsGenerating])
 
     const handleGenerate = async () => {
-        if (isGenerating) return
-
-        setIsGenerating(true)
-        setContent('') // Clear content for new generation
-
-        try {
-            const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-            const wsProtocol = backendUrl.startsWith('https') ? 'wss' : 'ws'
-            const wsUrl = `${wsProtocol}://${backendUrl.replace(/^https?:\/\//, '')}/api/v1/ai/ws/generate`
-
-            const ws = new WebSocket(wsUrl)
-            wsRef.current = ws
-
-            ws.onopen = () => {
-                ws.send(JSON.stringify({
-                    project_id: parseInt(projectId),
-                    stage_type: currentStage,
-                    // settings_id: 1, // Optional: Pass specific settings ID
-                    // custom_prompt: "" // Optional: Pass custom prompt
-                }))
-            }
-
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data)
-
-                if (data.type === 'token') {
-                    setContent(prev => prev + data.content)
-                } else if (data.type === 'done') {
-                    ws.close()
-                    setIsGenerating(false)
-                    fetchStages() // Refresh status
-                } else if (data.type === 'error') {
-                    console.error('AI Error:', data.error)
-                    alert(`AI 生成錯誤: ${data.error}`)
-                    ws.close()
-                    setIsGenerating(false)
-                }
-            }
-
-            ws.onerror = (error) => {
-                console.error('WebSocket Error:', error)
-                // Don't alert here as onClose often triggers after error
-            }
-
-            ws.onclose = () => {
-                setIsGenerating(false)
-                wsRef.current = null
-            }
-
-        } catch (error) {
-            console.error('Failed to setup WebSocket:', error)
-            alert('無法連接到 AI 服務')
-            setIsGenerating(false)
-        }
+        generate(parseInt(projectId), currentStage)
     }
 
     const getStageStatus = (stageType: StageType): StageStatus => {
@@ -177,19 +104,11 @@ export default function ProjectPage() {
     const handleUpdateProject = async () => {
         if (!project) return
         try {
-            const res = await fetch(`/api/v1/projects/${projectId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    name: editName,
-                    description: editDescription
-                })
+            await updateProject(project.id, {
+                name: editName,
+                description: editDescription
             })
-            if (res.ok) {
-                const updated = await res.json()
-                setProject(updated)
-                setShowEditProject(false)
-            }
+            setShowEditProject(false)
         } catch (error) {
             console.error('Failed to update project:', error)
         }
@@ -198,18 +117,14 @@ export default function ProjectPage() {
     const handleDeleteProject = async () => {
         if (!confirm('確定要刪除此專案嗎？此操作無法恢復。')) return
         try {
-            const res = await fetch(`/api/v1/projects/${projectId}`, {
-                method: 'DELETE'
-            })
-            if (res.ok) {
-                router.push('/')
-            }
+            await deleteProject(parseInt(projectId))
+            router.push('/')
         } catch (error) {
             console.error('Failed to delete project:', error)
         }
     }
 
-    if (loading) {
+    if (!project) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
@@ -346,7 +261,13 @@ export default function ProjectPage() {
                                     >
                                         ⚙️ 系統提示詞
                                     </button>
-                                    {isSaving && <span className="text-xs text-white/50">保存中...</span>}
+                                    {isSaving ? (
+                                        <span className="text-xs text-white/50">保存中...</span>
+                                    ) : hasUnsavedChanges ? (
+                                        <span className="text-xs text-yellow-500/70">未保存</span>
+                                    ) : (
+                                        <span className="text-xs text-green-500/50">已保存</span>
+                                    )}
                                     <button
                                         onClick={handleSave}
                                         disabled={isSaving}

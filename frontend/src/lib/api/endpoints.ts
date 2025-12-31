@@ -21,7 +21,7 @@ export const API_ENDPOINTS = {
     // AI 生成
     AI: {
         GENERATE: '/ai/generate',
-        STREAM_WS: (taskId: string) => `/ai/stream/${taskId}`, // WebSocket 連接路徑前綴 (需轉為 ws://)
+        GENERATE_WS: '/ai/ws/generate',
     },
 
     // 設定管理

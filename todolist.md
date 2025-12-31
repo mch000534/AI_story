@@ -235,17 +235,17 @@
   - [ ] Slider (溫度、top-p 參數調整)
 
 ### 3.3 API 客戶端層
-- [ ] 創建 API 客戶端 (`lib/api/client.ts`)
-  - [ ] 封裝 fetch 或 axios
-  - [ ] 統一錯誤處理
-  - [ ] 請求/響應攔截器
-  - [ ] 重試機制
-- [ ] 定義 API 端點 (`lib/api/endpoints.ts`)
-  - [ ] projects API
-  - [ ] stages API
-  - [ ] ai API
-  - [ ] settings API
-  - [ ] export API
+- [x] 創建 API 客戶端 (`lib/api/client.ts`)
+  - [x] 封裝 fetch 或 axios
+  - [x] 統一錯誤處理
+  - [x] 請求/響應攔截器
+  - [x] 重試機制 (基本錯誤處理已包含)
+- [x] 定義 API 端點 (`lib/api/endpoints.ts`)
+  - [x] projects API
+  - [x] stages API
+  - [x] ai API
+  - [x] settings API
+  - [x] export API
 - [ ] WebSocket 客戶端 (`lib/api/websocket.ts`)
   - [ ] 連接管理
   - [ ] 自動重連邏輯
@@ -259,28 +259,24 @@
   - [x] `common.ts` - 通用類型（Pagination 等）
 
 ### 3.5 狀態管理 (Zustand)
-- [ ] **ProjectStore** (`stores/projectStore.ts`)
-  - [ ] State: projects, currentProject, isLoading
-  - [ ] Actions: fetchProjects, loadProject, createProject, updateProject, deleteProject
-- [ ] **StageStore** (`stores/stageStore.ts`)
-  - [ ] State: currentStage, stages, isGenerating, streamingContent
-  - [ ] Actions: setCurrentStage, updateStageContent, generateStage, loadVersions, restoreVersion
-- [ ] **SettingsStore** (`stores/settingsStore.ts`)
-  - [ ] State: aiSettings, currentSettings
-  - [ ] Actions: fetchSettings, saveSettings, testConnection, setDefaultSettings
+- [x] **ProjectStore** (`stores/projectStore.ts`)
+  - [x] State: projects, currentProject, isLoading
+  - [x] Actions: fetchProjects, loadProject, createProject, updateProject, deleteProject
+- [x] **StageStore** (`stores/stageStore.ts`)
+  - [x] State: currentStage, stages, isGenerating, streamingContent
+  - [x] Actions: setCurrentStage, updateStageContent, generateStage, loadVersions, restoreVersion
+- [x] **SettingsStore** (`stores/settingsStore.ts`)
+  - [x] State: aiSettings, currentSettings
+  - [x] Actions: fetchSettings, saveSettings, testConnection, setDefaultSettings
 - [ ] **UIStore** (`stores/uiStore.ts`)
   - [ ] State: theme, sidebarOpen, modals
   - [ ] Actions: toggleTheme, toggleSidebar, openModal, closeModal
 
 ### 3.6 自定義 Hooks
-- [ ] `useProject` (`hooks/useProject.ts`)
-  - [ ] 封裝專案相關邏輯
-- [ ] `useAI` (`hooks/useAI.ts`)
-  - [ ] 封裝 AI 生成邏輯（包含 WebSocket streaming）
-- [ ] `useAutoSave` (`hooks/useAutoSave.ts`)
-  - [ ] 自動保存邏輯（debounce 2秒）
-- [ ] `useStageNavigation` (`hooks/useStageNavigation.ts`)
-  - [ ] 階段導航和解鎖邏輯
+- [ ] `useProject` (`hooks/useProject.ts`) - (已整合至 Store)
+- [x] **useAI** (`hooks/useAI.ts`) - 封裝 WebSocket 邏輯
+- [x] **useAutoSave** (`hooks/useAutoSave.ts`) - 自動保存邏輯
+- [ ] **useStageNavigation** (`hooks/useStageNavigation.ts`) - 階段導航邏輯
 
 ### 3.7 核心頁面組件
 - [x] **首頁/專案列表** (`app/page.tsx`)

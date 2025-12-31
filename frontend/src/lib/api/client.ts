@@ -7,8 +7,14 @@ interface ApiResponse<T = any> {
 }
 
 // 創建 axios 實例
+const getBaseUrl = () => {
+    const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    return url.endsWith('/api/v1') ? url : `${url}/api/v1`;
+};
+
+// 創建 axios 實例
 const axiosInstance: AxiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+    baseURL: getBaseUrl(),
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',

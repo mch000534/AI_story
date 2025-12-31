@@ -4,18 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import SystemPromptSettings from './SystemPromptSettings'
 
-interface AISettings {
-    id: number
-    name: string
-    provider: string
-    base_url: string
-    model: string
-    temperature: number
-    top_p: number
-    max_tokens: number
-    is_default: boolean
-    has_api_key: boolean
-}
+import { AISettings } from '@/types'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 // 預設配置模板
 const PRESET_CONFIGS = {
@@ -62,8 +52,16 @@ const DEFAULT_FORM_DATA = {
 }
 
 export default function SettingsPage() {
-    const [settings, setSettings] = useState<AISettings[]>([])
-    const [loading, setLoading] = useState(true)
+    const {
+        settings,
+        isLoading: loading,
+        fetchSettings,
+        createSettings,
+        updateSettings,
+        deleteSettings,
+        testConnection
+    } = useSettingsStore()
+
     const [showForm, setShowForm] = useState(false)
     const [editMode, setEditMode] = useState(false)
     const [testing, setTesting] = useState<number | null>(null)
@@ -73,21 +71,7 @@ export default function SettingsPage() {
 
     useEffect(() => {
         fetchSettings()
-    }, [])
-
-    const fetchSettings = async () => {
-        try {
-            const res = await fetch('/api/v1/settings/ai')
-            if (res.ok) {
-                const data = await res.json()
-                setSettings(data.items || [])
-            }
-        } catch (error) {
-            console.error('Failed to fetch settings:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    }, [fetchSettings])
 
     const resetForm = () => {
         setFormData(DEFAULT_FORM_DATA)
@@ -146,26 +130,13 @@ export default function SettingsPage() {
                     updateData.api_key = formData.api_key
                 }
 
-                const res = await fetch(`/api/v1/settings/ai/${formData.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updateData)
-                })
-                if (res.ok) {
-                    fetchSettings()
-                    resetForm()
-                }
+                await updateSettings(formData.id, updateData)
+                resetForm()
             } else {
                 // 新增模式 - 使用 POST
-                const res = await fetch('/api/v1/settings/ai', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                })
-                if (res.ok) {
-                    fetchSettings()
-                    resetForm()
-                }
+                const { id, ...createData } = formData
+                await createSettings(createData as Partial<AISettings>)
+                resetForm()
             }
         } catch (error) {
             console.error('Failed to save settings:', error)
@@ -176,9 +147,8 @@ export default function SettingsPage() {
         setTesting(id)
         setTestResult(null)
         try {
-            const res = await fetch(`/api/v1/settings/ai/${id}/test`, { method: 'POST' })
-            const data = await res.json()
-            setTestResult({ id, success: data.success, message: data.message })
+            const success = await testConnection(id)
+            setTestResult({ id, success, message: success ? '測試成功' : '測試失敗' })
         } catch (error) {
             setTestResult({ id, success: false, message: '測試失敗' })
         } finally {
@@ -189,10 +159,7 @@ export default function SettingsPage() {
     const handleDelete = async (id: number) => {
         if (!confirm('確定要刪除此設定？')) return
         try {
-            const res = await fetch(`/api/v1/settings/ai/${id}`, { method: 'DELETE' })
-            if (res.ok) {
-                fetchSettings()
-            }
+            await deleteSettings(id)
         } catch (error) {
             console.error('Failed to delete:', error)
         }
@@ -200,14 +167,7 @@ export default function SettingsPage() {
 
     const handleSetDefault = async (id: number) => {
         try {
-            const res = await fetch(`/api/v1/settings/ai/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ is_default: true })
-            })
-            if (res.ok) {
-                fetchSettings()
-            }
+            await updateSettings(id, { is_default: true })
         } catch (error) {
             console.error('Failed to set default:', error)
         }
