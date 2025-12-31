@@ -1,9 +1,12 @@
 """
 AI Story Backend - Settings API Routes
 """
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from pydantic import BaseModel
+from typing import List
 
 from app.db import get_db
 from app.models import AISettings
@@ -15,6 +18,79 @@ from app.services import SettingsService
 from app.utils.ai_client import create_ai_client
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
+
+
+class FetchModelsRequest(BaseModel):
+    api_key: str
+    base_url: str
+
+
+class ModelInfo(BaseModel):
+    id: str
+    name: str
+
+
+class FetchModelsResponse(BaseModel):
+    models: List[ModelInfo]
+
+
+@router.post("/ai/models", response_model=FetchModelsResponse)
+async def fetch_available_models(data: FetchModelsRequest):
+    """Fetch available models from the given base URL."""
+    try:
+        # Call the /models endpoint (OpenAI-compatible API)
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.get(
+                f"{data.base_url.rstrip('/')}/models",
+                headers={"Authorization": f"Bearer {data.api_key}"}
+            )
+            response.raise_for_status()
+            result = response.json()
+            
+            models = []
+            # OpenAI format: {"data": [{"id": "model-id", ...}, ...]}
+            if "data" in result:
+                for model in result["data"]:
+                    model_id = model.get("id", "")
+                    models.append(ModelInfo(
+                        id=model_id,
+                        name=model.get("name", model_id)
+                    ))
+            # Some APIs return {"models": [...]}
+            elif "models" in result:
+                for model in result["models"]:
+                    if isinstance(model, str):
+                        models.append(ModelInfo(id=model, name=model))
+                    else:
+                        model_id = model.get("id", model.get("name", ""))
+                        models.append(ModelInfo(
+                            id=model_id,
+                            name=model.get("name", model_id)
+                        ))
+            
+            # Sort by id
+            models.sort(key=lambda m: m.id)
+            return FetchModelsResponse(models=models)
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=f"API 錯誤: {e.response.text}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"獲取模型列表失敗: {str(e)}")
+
+
+@router.get("/ai/{settings_id}/key")
+def get_api_key(settings_id: int, db: Session = Depends(get_db)):
+    """Get decrypted API key for editing purposes."""
+    from app.core.security import decrypt_api_key
+    
+    stmt = select(AISettings).where(AISettings.id == settings_id)
+    result = db.execute(stmt)
+    settings = result.scalar_one_or_none()
+    
+    if not settings:
+        raise HTTPException(status_code=404, detail="Settings not found")
+    
+    api_key = decrypt_api_key(settings.api_key_encrypted)
+    return {"api_key": api_key}
 
 
 @router.get("/ai", response_model=AISettingsListResponse)
