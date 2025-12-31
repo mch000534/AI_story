@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { StageType, Stage, STAGE_INFO, STAGE_ORDER, StageStatus } from '@/types'
@@ -92,47 +92,70 @@ export default function ProjectPage() {
         }
     }
 
-    const handleGenerate = async () => {
-        setIsGenerating(true)
-        try {
-            // 直接請求後端 API 以避免 Next.js 代理超時問題
-            const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-            const res = await fetch(`${backendUrl}/api/v1/ai/generate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    project_id: parseInt(projectId),
-                    stage_type: currentStage
-                })
-            })
-            if (res.ok) {
-                const data = await res.json()
-                setContent(data.content)
+    const wsRef = useRef<WebSocket | null>(null)
 
-                // Optimistically update stages to prevent useEffect from overwriting with old data
-                setStages(prev => {
-                    const current = prev[currentStage]
-                    if (!current) return prev
-                    return {
-                        ...prev,
-                        [currentStage]: {
-                            ...current,
-                            content: data.content,
-                            status: 'in_progress', // AI generation enables usage
-                            last_ai_model: data.model
-                        }
-                    }
-                })
-
-                fetchStages() // Refresh stages to get updated status
-            } else {
-                const error = await res.json()
-                alert(error.detail || 'AI 生成失敗')
+    // Cleanup WebSocket on unmount
+    useEffect(() => {
+        return () => {
+            if (wsRef.current) {
+                wsRef.current.close()
             }
+        }
+    }, [])
+
+    const handleGenerate = async () => {
+        if (isGenerating) return
+
+        setIsGenerating(true)
+        setContent('') // Clear content for new generation
+
+        try {
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+            const wsProtocol = backendUrl.startsWith('https') ? 'wss' : 'ws'
+            const wsUrl = `${wsProtocol}://${backendUrl.replace(/^https?:\/\//, '')}/api/v1/ai/ws/generate`
+
+            const ws = new WebSocket(wsUrl)
+            wsRef.current = ws
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({
+                    project_id: parseInt(projectId),
+                    stage_type: currentStage,
+                    // settings_id: 1, // Optional: Pass specific settings ID
+                    // custom_prompt: "" // Optional: Pass custom prompt
+                }))
+            }
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data)
+
+                if (data.type === 'token') {
+                    setContent(prev => prev + data.content)
+                } else if (data.type === 'done') {
+                    ws.close()
+                    setIsGenerating(false)
+                    fetchStages() // Refresh status
+                } else if (data.type === 'error') {
+                    console.error('AI Error:', data.error)
+                    alert(`AI 生成錯誤: ${data.error}`)
+                    ws.close()
+                    setIsGenerating(false)
+                }
+            }
+
+            ws.onerror = (error) => {
+                console.error('WebSocket Error:', error)
+                // Don't alert here as onClose often triggers after error
+            }
+
+            ws.onclose = () => {
+                setIsGenerating(false)
+                wsRef.current = null
+            }
+
         } catch (error) {
-            console.error('Failed to generate:', error)
-            alert('AI 生成失敗，請確認已配置 AI 設定')
-        } finally {
+            console.error('Failed to setup WebSocket:', error)
+            alert('無法連接到 AI 服務')
             setIsGenerating(false)
         }
     }

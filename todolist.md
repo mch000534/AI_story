@@ -1,8 +1,8 @@
 # AI 故事創作工具 - 開發待辦清單
 
 > **專案狀態追蹤**  
-> 最後更新：2025-12-30  
-> 當前階段：階段 1-2 完成，進入前端核心開發
+> 最後更新：2025-12-31  
+> 當前階段：階段 1-2 完成，前端核心開發進行中 (階段 3)
 
 ---
 
@@ -47,8 +47,8 @@
   - [x] 設置 `pyproject.toml` 和 `requirements.txt`
   - [x] 創建基本目錄結構（app/, tests/, alembic/）
 - [/] 配置開發環境
-  - [ ] 設置虛擬環境 (venv 或 poetry)
-  - [ ] 安裝核心依賴（FastAPI, SQLAlchemy, Uvicorn）
+  - [x] 設置虛擬環境 (venv 或 poetry)
+  - [x] 安裝核心依賴（FastAPI, SQLAlchemy, Uvicorn）
   - [x] 配置 `.env.example` 模板
 - [x] 設置程式碼規範工具
   - [x] 配置 Black（程式碼格式化）
@@ -304,15 +304,15 @@
   - [x] 顯示 8 個階段的進度條
   - [x] 根據 status 顯示不同顏色/圖標
   - [x] 點擊切換階段
-  - [x] 解鎖邏輯（前一階段完成才可點擊）
+  - [x] 解鎖邏輯（已移除強制限制，允許自由切換）
 - [x] **EditorPanel** (在 project/[id]/page.tsx 中實現)
   - [x] 文字編輯器
   - [x] AI 生成按鈕
   - [x] 保存按鈕
-- [ ] **RichTextEditor** (`components/editor/RichTextEditor.tsx`)
-  - [ ] 使用 Tiptap 編輯器
-  - [ ] 支持 Markdown
-  - [ ] 自動保存（debounce）
+- [x] **RichTextEditor** (`components/editor/RichTextEditor.tsx`)
+  - [x] 使用 Tiptap 編輯器
+  - [x] 支持 Markdown
+  - [x] 自動保存（debounce）
 - [x] **VersionHistory** (`components/editor/VersionHistory.tsx`)
   - [x] 顯示版本列表
   - [x] 版本預覽功能
@@ -337,15 +337,15 @@
   - [ ] Diff 高亮顯示
 
 ### 3.10 Streaming UI 實現
-- [ ] 實現 WebSocket 連接邏輯
-  - [ ] 連接到 `/ws/ai/generate`
-  - [ ] 接收 token 並逐字顯示
-  - [ ] 處理完成/錯誤消息
-- [ ] 打字機效果
-  - [ ] 平滑的逐字顯示動畫
+- [x] 實現 WebSocket 連接邏輯
+  - [x] 連接到 `/ws/ai/generate`
+  - [x] 接收 token 並逐字顯示
+  - [x] 處理完成/錯誤消息
+- [x] 打字機效果
+  - [x] 平滑的逐字顯示動畫 (Streaming)
   - [ ] 閃爍光標效果
 - [ ] 進度指示器
-  - [ ] 顯示生成狀態（連接中、生成中、完成）
+  - [x] 顯示生成狀態（連接中、生成中、完成）
   - [ ] 進度條或動畫
 
 ---

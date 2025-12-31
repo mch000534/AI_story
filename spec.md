@@ -372,7 +372,7 @@ App
    - `in_progress`: 黃色
    - `completed`: 綠色
 3. 點擊切換當前階段，調用 `setCurrentStage()`
-4. 禁用邏輯：前一階段未完成時，後續階段不可點擊
+4. 解鎖邏輯：允許自由切換階段，但建議按順序進行
 
 #### AIGenerateButton 組件
 **職責**：觸發 AI 生成並顯示進度
