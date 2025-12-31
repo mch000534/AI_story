@@ -98,6 +98,7 @@ export default function ProjectPage() {
                 if (showExport) setShowExport(false)
                 if (showPromptEdit) setShowPromptEdit(false)
                 if (showEditProject) setShowEditProject(false)
+                if (showVersionHistory) setShowVersionHistory(false)
                 return
             }
 

@@ -14,17 +14,18 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
     const [versions, setVersions] = useState<StageVersion[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedVersion, setSelectedVersion] = useState<StageVersion | null>(null)
-    const [compareMode, setCompareMode] = useState(false)
     const [compareVersions, setCompareVersions] = useState<StageVersion[]>([])
     const [showCompareModal, setShowCompareModal] = useState(false)
 
     useEffect(() => {
         fetchVersions()
+        setCompareVersions([])  // Clear compare selection when stage changes
+        setSelectedVersion(null)
     }, [projectId, stageType])
 
     // Keyboard navigation for version preview
     useEffect(() => {
-        if (!selectedVersion || compareMode) return
+        if (!selectedVersion) return
 
         const handleKeyDown = (e: KeyboardEvent) => {
             const isMod = e.ctrlKey || e.metaKey
@@ -43,7 +44,7 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
 
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [selectedVersion, compareMode, versions])
+    }, [selectedVersion, versions])
 
     const fetchVersions = async () => {
         try {
@@ -76,26 +77,20 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
     }
 
     const handleVersionClick = (version: StageVersion) => {
-        if (compareMode) {
-            if (compareVersions.length === 0) {
-                setCompareVersions([version])
-            } else if (compareVersions.length === 1) {
-                if (compareVersions[0].id !== version.id) {
-                    setCompareVersions([compareVersions[0], version])
-                }
-            } else {
-                // Reset and start new selection
-                setCompareVersions([version])
-            }
-        } else {
-            setSelectedVersion(version)
-        }
+        setSelectedVersion(version)
     }
 
-    const toggleCompareMode = () => {
-        setCompareMode(!compareMode)
-        setCompareVersions([])
-        setShowCompareModal(false)
+    const toggleCompareSelection = (version: StageVersion) => {
+        if (isSelected(version)) {
+            // Remove from selection
+            setCompareVersions(compareVersions.filter(v => v.id !== version.id))
+        } else if (compareVersions.length < 2) {
+            // Add to selection
+            setCompareVersions([...compareVersions, version])
+        } else {
+            // Replace second selection
+            setCompareVersions([compareVersions[0], version])
+        }
     }
 
     const isSelected = (version: StageVersion) => {
@@ -156,47 +151,31 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
     }
 
     return (
-        <div className="p-4">
+        <div className="p-4 h-full flex flex-col">
             <div className="flex justify-between items-center mb-3">
                 <h3 className="text-sm font-medium text-white/70">版本歷史</h3>
-                {versions.length >= 2 && (
+                {compareVersions.length === 2 && (
                     <button
-                        onClick={toggleCompareMode}
-                        className={`text-xs px-2 py-1 rounded transition-colors ${compareMode
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-white/10 text-white/70 hover:bg-white/20'
-                            }`}
+                        onClick={() => setShowCompareModal(true)}
+                        className="text-xs px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded"
                     >
-                        {compareMode ? '取消比較' : '比較版本'}
+                        查看比較
                     </button>
                 )}
             </div>
 
-            {compareMode && (
+            {compareVersions.length > 0 && compareVersions.length < 2 && (
                 <div className="mb-3 p-2 bg-purple-900/20 rounded-lg text-xs text-purple-300">
-                    {compareVersions.length === 0
-                        ? '請選擇第一個版本'
-                        : compareVersions.length === 1
-                            ? '請選擇第二個版本'
-                            : '已選擇兩個版本，點擊下方按鈕查看比較'}
+                    請選擇第二個版本進行比較
                 </div>
             )}
 
-            {compareMode && compareVersions.length === 2 && (
-                <button
-                    onClick={() => setShowCompareModal(true)}
-                    className="w-full mb-3 px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm"
-                >
-                    查看版本比較
-                </button>
-            )}
-
-            <div className="space-y-2 max-h-80 overflow-y-auto">
+            <div className="flex-1 space-y-2 overflow-y-auto">
                 {versions.map((version) => (
-                    <button
+                    <div
                         key={version.id}
                         onClick={() => handleVersionClick(version)}
-                        className={`w-full text-left p-3 rounded-lg border transition-colors ${compareMode && isSelected(version)
+                        className={`w-full text-left p-3 rounded-lg border transition-colors cursor-pointer ${isSelected(version)
                             ? 'bg-purple-600/30 border-purple-500'
                             : selectedVersion?.id === version.id
                                 ? 'bg-purple-600/20 border-purple-500/50'
@@ -206,7 +185,7 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
                         <div className="flex justify-between items-start">
                             <div className="flex-1">
                                 <div className="text-sm font-medium text-white">
-                                    {compareMode && isSelected(version) && (
+                                    {isSelected(version) && (
                                         <span className="inline-block w-5 h-5 text-center bg-purple-600 rounded-full mr-2 text-xs leading-5">
                                             {compareVersions.findIndex(v => v.id === version.id) + 1}
                                         </span>
@@ -222,38 +201,49 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
                                 <div className="text-xs text-white/40">
                                     {new Date(version.created_at).toLocaleString('zh-TW')}
                                 </div>
-                                {!compareMode && (
-                                    <div className="flex gap-1 mt-1">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleRename(version)
-                                            }}
-                                            className="text-xs px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-white/60 hover:text-white"
-                                            title="重命名"
-                                        >
-                                            ✏️
-                                        </button>
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                handleDelete(version)
-                                            }}
-                                            className="text-xs px-1.5 py-0.5 bg-red-500/10 hover:bg-red-500/30 rounded text-red-300/60 hover:text-red-300"
-                                            title="刪除"
-                                        >
-                                            🗑️
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="flex gap-1 mt-1">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleRename(version)
+                                        }}
+                                        className="text-xs px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-white/60 hover:text-white"
+                                        title="重命名"
+                                    >
+                                        ✏️
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            toggleCompareSelection(version)
+                                        }}
+                                        className={`text-xs px-1.5 py-0.5 rounded ${isSelected(version)
+                                            ? 'bg-purple-600 text-white'
+                                            : 'bg-white/10 hover:bg-white/20 text-white/60 hover:text-white'
+                                            }`}
+                                        title="選取比較"
+                                    >
+                                        ⚖️
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleDelete(version)
+                                        }}
+                                        className="text-xs px-1.5 py-0.5 bg-red-500/10 hover:bg-red-500/30 rounded text-red-300/60 hover:text-red-300"
+                                        title="刪除"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </button>
+                    </div>
                 ))}
             </div>
 
             {/* Version Preview Modal */}
-            {selectedVersion && !compareMode && (
+            {selectedVersion && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-slate-800 rounded-xl p-6 w-[95vw] h-[95vh] overflow-hidden flex flex-col animate-slideUp">
                         <div className="flex justify-between items-center mb-4">
@@ -311,7 +301,6 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
                     onApply={(content) => {
                         onRestore(content)
                         setShowCompareModal(false)
-                        setCompareMode(false)
                         setCompareVersions([])
                     }}
                 />
