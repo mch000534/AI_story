@@ -34,10 +34,11 @@ export const API_ENDPOINTS = {
     },
 
     // 匯出功能
+    // 匯出功能
     EXPORT: {
-        SCRIPT: '/export/script',
-        STORYBOARD: '/export/storyboard',
-        PROMPTS: '/export/prompts',
-        COMPLETE: '/export/complete',
+        SCRIPT: (projectId: string) => `/export/script/${projectId}`,
+        STORYBOARD: (projectId: string) => `/export/storyboard/${projectId}`,
+        PROMPTS: (projectId: string) => `/export/prompts/${projectId}`,
+        COMPLETE: (projectId: string) => `/export/complete/${projectId}`,
     },
 };

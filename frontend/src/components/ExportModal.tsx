@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { apiClient } from '@/lib/api/client'
+import { API_ENDPOINTS } from '@/lib/api/endpoints'
 
 interface ExportModalProps {
     projectId: number
@@ -14,22 +16,62 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
     const handleExport = async (type: string, format?: string) => {
         setExporting(type)
         try {
-            let url = `/api/v1/export/${type}/${projectId}`
-            if (format) {
-                url += `?format=${format}`
+            const pid = projectId.toString()
+            let endpoint = ''
+
+            switch (type) {
+                case 'script':
+                    endpoint = API_ENDPOINTS.EXPORT.SCRIPT(pid)
+                    break
+                case 'storyboard':
+                    endpoint = API_ENDPOINTS.EXPORT.STORYBOARD(pid)
+                    break
+                case 'prompts':
+                    endpoint = API_ENDPOINTS.EXPORT.PROMPTS(pid)
+                    break
+                case 'complete':
+                    endpoint = API_ENDPOINTS.EXPORT.COMPLETE(pid)
+                    break
+                default:
+                    throw new Error('Unknown export type')
             }
 
-            const res = await fetch(url, { method: 'POST' })
-            if (res.ok) {
-                const blob = await res.blob()
-                const contentDisposition = res.headers.get('Content-Disposition')
+            if (format) {
+                endpoint += `?format=${format}`
+            }
+
+            // use apiClient.instance to get full response including headers
+            const res = await apiClient.instance.post(endpoint, {}, {
+                responseType: 'blob'
+            })
+
+            if (res.status === 200) {
+                const blob = new Blob([res.data], { type: res.headers['content-type'] })
+                const contentDisposition = res.headers['content-disposition']
                 let filename = `${projectName}_${type}`
+
                 if (contentDisposition) {
-                    const match = contentDisposition.match(/filename=(.+)/)
-                    if (match) filename = match[1]
+                    // Try to extract filename* (UTF-8) first, then filename
+                    // Example: attachment; filename*=utf-8''encoded.ext; filename=default.ext
+                    const matchUtf8 = contentDisposition.match(/filename\*=utf-8''(.+)/i)
+                    if (matchUtf8) {
+                        filename = decodeURIComponent(matchUtf8[1])
+                    } else {
+                        const match = contentDisposition.match(/filename="?([^";]+)"?/i)
+                        if (match) filename = match[1]
+                    }
                 }
 
-                // Download file
+                // Fallback extension
+                if (!filename.includes('.')) {
+                    if (format === 'pdf') filename += '.pdf'
+                    else if (format === 'docx') filename += '.docx'
+                    else if (format === 'fountain') filename += '.fountain'
+                    else if (type === 'storyboard') filename += '.xlsx'
+                    else if (type === 'prompts') filename += '.txt'
+                    else if (type === 'complete') filename += '.zip'
+                }
+
                 const downloadUrl = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
                 a.href = downloadUrl
@@ -41,9 +83,10 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
             } else {
                 alert('匯出失敗')
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Export failed:', error)
-            alert('匯出失敗')
+            const message = error.message || '匯出失敗，請檢查網絡連接或稍後再試'
+            alert(`匯出失敗: ${message}`)
         } finally {
             setExporting(null)
         }
@@ -139,8 +182,8 @@ function ExportButton({
             onClick={onClick}
             disabled={loading}
             className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${primary
-                    ? 'bg-purple-600 hover:bg-purple-500 text-white'
-                    : 'bg-white/10 hover:bg-white/20 text-white'
+                ? 'bg-purple-600 hover:bg-purple-500 text-white'
+                : 'bg-white/10 hover:bg-white/20 text-white'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
             {loading ? '匯出中...' : label}

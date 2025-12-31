@@ -41,13 +41,24 @@ axiosInstance.interceptors.response.use(
     (response: AxiosResponse) => {
         return response;
     },
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
         // 統一錯誤處理
         let message = '發生未知錯誤';
 
         if (error.response) {
             // 伺服器回應了錯誤狀態碼
-            const data = error.response.data as any;
+            let data = error.response.data as any;
+
+            // Handle Blob error response
+            if (data instanceof Blob && data.type === 'application/json') {
+                try {
+                    const text = await data.text();
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Failed to parse Blob error:', e);
+                }
+            }
+
             message = data.detail || data.message || `請求失敗 (${error.response.status})`;
         } else if (error.request) {
             // 請求發出但沒有收到回應

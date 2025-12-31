@@ -169,11 +169,11 @@
   - [x] `PUT /api/v1/settings/ai/{id}` - 更新配置
   - [x] `DELETE /api/v1/settings/ai/{id}` - 刪除配置
   - [x] `POST /api/v1/settings/ai/{id}/test` - 測試連接
-- [ ] **匯出 API** (`api/v1/export.py`)
-  - [ ] `POST /api/v1/export/script` - 匯出劇本
-  - [ ] `POST /api/v1/export/storyboard` - 匯出分鏡
-  - [ ] `POST /api/v1/export/prompts` - 匯出提示詞
-  - [ ] `POST /api/v1/export/complete` - 匯出完整專案
+- [x] **匯出 API** (`api/v1/export.py`)
+  - [x] `POST /api/v1/export/script` - 匯出劇本
+  - [x] `POST /api/v1/export/storyboard` - 匯出分鏡
+  - [x] `POST /api/v1/export/prompts` - 匯出提示詞
+  - [x] `POST /api/v1/export/complete` - 匯出完整專案
 
 ### 2.6 安全性實現
 - [x] API Key 加密/解密 (`core/security.py`)

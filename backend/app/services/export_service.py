@@ -1,6 +1,7 @@
 """
 AI Story Backend - Export Service
 """
+import os
 import io
 import json
 import zipfile
@@ -37,16 +38,47 @@ class ExportService:
             bottomMargin=2*cm
         )
         
+        # Register Chinese Font
+        # Use absolute path relative to the file
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        font_path = os.path.join(os.path.dirname(base_dir), 'static', 'fonts', 'NotoSansTC-Regular.ttf')
+        
+        try:
+            pdfmetrics.registerFont(TTFont('NotoSansTC', font_path))
+            font_name = 'NotoSansTC'
+        except Exception as e:
+            # Fallback to Helvetica only if font file is missing, otherwise raise to debug
+            print(f"Failed to load font from {font_path}: {e}")
+            if os.path.exists(font_path):
+                raise RuntimeError(f"Font file exists but failed to load: {e}")
+            font_name = 'Helvetica' # Still fallback if file missing to avoid crash, but log it.
+            # actually, if we fallback, we get tofu. Better to fail?
+            # Let's fail if we are sure we need Chinese.
+            # But the user might be exporting English content.
+            # For now, let's keep fallback but ensure path is correct.
+            # The issue user sees implies fallback happened or crash happened.
+            # If 500, crash happened.
+            # If fallback happened, no 500, but tofu.
+            # User reported 500. So crash happened.
+            # If crash happened, it might be inside registerFont or later.
+            # The previous 'print' swallowed the error.
+            # So the 500 comes from later 'UnicodeEncodeError' or similar.
+            pass
+
+        story = []
+        
         styles = getSampleStyleSheet()
         title_style = ParagraphStyle(
             'Title',
             parent=styles['Title'],
+            fontName=font_name,
             fontSize=24,
             spaceAfter=30
         )
         heading_style = ParagraphStyle(
             'Heading',
             parent=styles['Heading1'],
+            fontName=font_name,
             fontSize=16,
             spaceBefore=20,
             spaceAfter=10
@@ -54,11 +86,13 @@ class ExportService:
         body_style = ParagraphStyle(
             'Body',
             parent=styles['Normal'],
+            fontName=font_name,
             fontSize=11,
             leading=16
         )
         
-        story = []
+        # Add normal style with Chinese font for simple paragraphs if needed
+        styles['Normal'].fontName = font_name
         
         # Title
         story.append(Paragraph(project.name, title_style))
