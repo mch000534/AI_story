@@ -110,11 +110,14 @@ Stage (創作階段)
 StageVersion (版本歷史)
   ├── id: UUID
   ├── stage_id: FK → Stage
+  ├── version_number: Integer
   ├── content: Text
+  ├── source: String (manual/ai)
   ├── ai_model: String
-  ├── ai_parameters: JSON (temperature, top_p, etc.)
+  ├── ai_params: JSON (temperature, top_p, etc.)
+  ├── label: String (custom name)
   ├── created_at: DateTime
-  └── is_current: Boolean
+  └── is_current: Boolean (deprecated, controlled by Stage.content)
 
 AISettings (AI 配置)
   ├── id: UUID
@@ -230,8 +233,10 @@ GET    /api/v1/ai/stream/{task_id}   WebSocket 端點（streaming 回應）
 ```
 GET    /api/v1/projects/{id}/stages/{type}          獲取特定階段
 PUT    /api/v1/projects/{id}/stages/{type}          更新階段內容
-GET    /api/v1/projects/{id}/stages/{type}/versions 獲取版本歷史
-POST   /api/v1/projects/{id}/stages/{type}/restore  恢復到某個版本
+GET    /api/v1/projects/{id}/stages/{type}/versions          獲取版本歷史
+PUT    /api/v1/projects/{id}/stages/{type}/versions/{vid}   重命名版本 (自定義 label)
+DELETE /api/v1/projects/{id}/stages/{type}/versions/{vid}   刪除版本
+POST   /api/v1/projects/{id}/stages/{type}/restore           恢復到某個版本
 ```
 
 #### 匯出 API
