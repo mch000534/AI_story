@@ -1,7 +1,7 @@
 'use client'
 
 import { useToast, ToastType } from '@/hooks/useToast'
-import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react'
+import { CheckCircle, XCircle, AlertTriangle, Info, X, RefreshCw } from 'lucide-react'
 
 const iconMap: Record<ToastType, React.ReactNode> = {
     success: <CheckCircle className="w-5 h-5 text-green-400" />,
@@ -27,13 +27,27 @@ export default function ToastContainer() {
             {toasts.map((toast) => (
                 <div
                     key={toast.id}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border backdrop-blur-sm shadow-lg animate-slideUp ${bgMap[toast.type]}`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg border backdrop-blur-sm shadow-lg 
+                        animate-slideUp transition-all duration-300 ${bgMap[toast.type]}`}
                 >
                     {iconMap[toast.type]}
-                    <span className="text-white text-sm">{toast.message}</span>
+                    <span className="text-white text-sm flex-1">{toast.message}</span>
+                    {toast.onRetry && (
+                        <button
+                            onClick={() => {
+                                toast.onRetry?.()
+                                hideToast(toast.id)
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 text-xs bg-white/10 hover:bg-white/20 
+                                rounded text-white/80 hover:text-white transition-colors"
+                        >
+                            <RefreshCw className="w-3 h-3" />
+                            重試
+                        </button>
+                    )}
                     <button
                         onClick={() => hideToast(toast.id)}
-                        className="ml-2 text-white/60 hover:text-white transition-colors"
+                        className="ml-1 text-white/60 hover:text-white transition-colors"
                     >
                         <X className="w-4 h-4" />
                     </button>

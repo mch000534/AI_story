@@ -99,10 +99,47 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
 
 .animate-slideUp {
   animation: slideUp 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-once {
+  animation: pulse 0.3s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }

@@ -37,7 +37,11 @@ export default function ProjectPage() {
             fetchStages(parseInt(projectId))
             showToast('AI 生成完成', 'success')
         },
-        onError: (err) => showToast(`AI 生成錯誤: ${err}`, 'error')
+        onError: (err) => showToast(
+            `AI 生成錯誤: ${err}`,
+            'error',
+            () => generate(parseInt(projectId), currentStage)
+        )
     })
 
     // Navigation
@@ -208,18 +212,20 @@ export default function ProjectPage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             {/* Header */}
             <header className="border-b border-white/10 backdrop-blur-sm sticky top-0 z-10">
-                <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="text-white/70 hover:text-white">
-                            ← 返回
+                <div className="container mx-auto px-3 md:px-6 py-3 md:py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <Link href="/" className="text-white/70 hover:text-white text-sm md:text-base">
+                            ← <span className="hidden sm:inline">返回</span>
                         </Link>
                         <button
                             onClick={toggleSidebar}
-                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors md:block hidden"
                         >
                             {isSidebarOpen ? '◀' : '▶'}
                         </button>
-                        <h1 className="text-xl font-semibold text-white">{project?.name}</h1>
+                        <h1 className="text-base md:text-xl font-semibold text-white truncate max-w-[120px] sm:max-w-[200px] md:max-w-none">
+                            {project?.name}
+                        </h1>
                         <button
                             onClick={() => {
                                 if (project) {
@@ -228,42 +234,66 @@ export default function ProjectPage() {
                                     setShowEditProject(true)
                                 }
                             }}
-                            className="text-white/50 hover:text-white text-sm"
+                            className="text-white/50 hover:text-white text-sm hidden sm:block"
                             title="編輯專案"
                         >
                             ✏️
                         </button>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-1 sm:gap-2 md:gap-3">
                         <button
                             onClick={() => setShowVersionHistory(!showVersionHistory)}
-                            className={`px-4 py-2 text-sm border rounded-lg transition-colors ${showVersionHistory
+                            className={`px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm border rounded-lg transition-colors ${showVersionHistory
                                 ? 'bg-purple-600/20 text-purple-300 border-purple-500/50'
                                 : 'text-white/70 hover:text-white border-white/20'
                                 }`}
                         >
-                            📜 版本
+                            📜 <span className="hidden sm:inline">版本</span>
                         </button>
                         <Link
                             href="/settings"
-                            className="px-4 py-2 text-sm text-white/70 hover:text-white border border-white/20 rounded-lg"
+                            className="px-2 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-white/70 hover:text-white border border-white/20 rounded-lg"
                         >
-                            AI 設定
+                            ⚙️ <span className="hidden sm:inline">AI 設定</span>
                         </Link>
                         <button
                             onClick={() => setShowExport(true)}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm"
+                            className="px-2 md:px-4 py-1.5 md:py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs md:text-sm"
                         >
-                            匯出
+                            <span className="hidden sm:inline">匯出</span>
+                            <span className="sm:hidden">📤</span>
                         </button>
                     </div>
                 </div>
             </header>
 
             <div className="flex">
-                {/* Stage Navigator Sidebar */}
+                {/* Mobile Stage Selector */}
+                <div className="md:hidden fixed bottom-0 left-0 right-0 z-20 bg-slate-900/95 backdrop-blur-sm border-t border-white/10">
+                    <div className="flex overflow-x-auto p-2 gap-1">
+                        {STAGE_ORDER.map((stageType) => {
+                            const info = STAGE_INFO[stageType]
+                            const isActive = currentStage === stageType
+                            return (
+                                <button
+                                    key={stageType}
+                                    onClick={() => navigateToStage(stageType)}
+                                    className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all ${isActive
+                                        ? 'bg-purple-600/30 text-white'
+                                        : 'text-white/60'
+                                        }`}
+                                >
+                                    <span className="text-lg">{info.icon}</span>
+                                    <span className="mt-0.5 whitespace-nowrap">{info.name}</span>
+                                </button>
+                            )
+                        })}
+                    </div>
+                </div>
+
+                {/* Stage Navigator Sidebar - Desktop Only */}
                 <aside
-                    className={`${isSidebarOpen ? 'w-64 border-r' : 'w-0 overflow-hidden'
+                    className={`hidden md:block ${isSidebarOpen ? 'w-64 border-r' : 'w-0 overflow-hidden'
                         } border-white/10 h-[calc(100vh-65px)] sticky top-[65px] transition-all duration-300 ease-in-out bg-slate-900/50 backdrop-blur-sm`}
                 >
                     <nav className="p-4">
@@ -306,17 +336,17 @@ export default function ProjectPage() {
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 p-6">
+                <main className="flex-1 p-3 md:p-6 pb-24 md:pb-6">
                     <div className="max-w-4xl mx-auto">
                         {/* Stage Header */}
-                        <div className="mb-6">
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-3xl">{STAGE_INFO[currentStage].icon}</span>
-                                <h2 className="text-2xl font-bold text-white">
+                        <div className="mb-4 md:mb-6">
+                            <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
+                                <span className="text-2xl md:text-3xl">{STAGE_INFO[currentStage].icon}</span>
+                                <h2 className="text-xl md:text-2xl font-bold text-white">
                                     {STAGE_INFO[currentStage].name}
                                 </h2>
                             </div>
-                            <p className="text-white/60 text-sm">
+                            <p className="text-white/60 text-xs md:text-sm">
                                 {getStageDescription(currentStage)}
                             </p>
                         </div>
@@ -324,44 +354,44 @@ export default function ProjectPage() {
                         {/* Editor */}
                         <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
                             {/* Toolbar */}
-                            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-white/10 bg-white/5 gap-2 sm:gap-0">
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={handleGenerate}
                                         disabled={isGenerating || getStageStatus(currentStage) === 'locked'}
-                                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-sm font-medium transition-all"
+                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:from-slate-600 disabled:to-slate-600 text-white rounded-lg text-xs md:text-sm font-medium transition-all"
                                     >
                                         {isGenerating ? (
                                             <>
                                                 <span className="animate-spin">⚡</span>
-                                                生成中...
+                                                <span className="hidden xs:inline">生成中...</span>
                                             </>
                                         ) : (
                                             <>
-                                                ✨ AI 生成
+                                                ✨ <span className="hidden xs:inline">AI</span> 生成
                                             </>
                                         )}
                                     </button>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 justify-end">
                                     <button
                                         onClick={() => setShowPromptEdit(true)}
-                                        className="px-3 py-2 text-white/50 hover:text-white text-sm hover:bg-white/10 rounded-lg transition-all"
+                                        className="px-2 md:px-3 py-1.5 md:py-2 text-white/50 hover:text-white text-xs md:text-sm hover:bg-white/10 rounded-lg transition-all"
                                         title="修改系統提示詞"
                                     >
-                                        ⚙️ 系統提示詞
+                                        ⚙️ <span className="hidden sm:inline">系統提示詞</span>
                                     </button>
                                     {isSaving ? (
                                         <span className="text-xs text-white/50">保存中...</span>
                                     ) : hasUnsavedChanges ? (
                                         <span className="text-xs text-yellow-500/70">未保存</span>
                                     ) : (
-                                        <span className="text-xs text-green-500/50">已保存</span>
+                                        <span className="text-xs text-green-500/50">✓</span>
                                     )}
                                     <button
                                         onClick={handleSave}
                                         disabled={isSaving}
-                                        className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm"
+                                        className="px-3 md:px-4 py-1.5 md:py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs md:text-sm"
                                     >
                                         保存
                                     </button>
@@ -399,13 +429,13 @@ export default function ProjectPage() {
 
                 {/* Version History Modal */}
                 {showVersionHistory && (
-                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="bg-slate-800 rounded-xl w-[95vw] h-[95vh] overflow-hidden flex flex-col animate-slideUp">
-                            <div className="flex items-center justify-between p-4 border-b border-white/10">
-                                <h3 className="text-lg font-bold text-white">版本歷史 - {STAGE_INFO[currentStage]?.name}</h3>
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-0">
+                        <div className="bg-slate-800 rounded-xl w-full h-full md:w-[95vw] md:h-[95vh] overflow-hidden flex flex-col animate-slideUp">
+                            <div className="flex items-center justify-between p-3 md:p-4 border-b border-white/10">
+                                <h3 className="text-base md:text-lg font-bold text-white">版本歷史 - {STAGE_INFO[currentStage]?.name}</h3>
                                 <button
                                     onClick={() => setShowVersionHistory(false)}
-                                    className="text-white/50 hover:text-white text-xl"
+                                    className="text-white/50 hover:text-white text-xl p-1"
                                 >
                                     ✕
                                 </button>

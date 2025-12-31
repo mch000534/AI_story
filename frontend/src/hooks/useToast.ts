@@ -8,27 +8,29 @@ interface Toast {
     id: string
     message: string
     type: ToastType
+    onRetry?: () => void
 }
 
 interface ToastStore {
     toasts: Toast[]
-    showToast: (message: string, type?: ToastType) => void
+    showToast: (message: string, type?: ToastType, onRetry?: () => void) => void
     hideToast: (id: string) => void
 }
 
 export const useToast = create<ToastStore>((set) => ({
     toasts: [],
-    showToast: (message, type = 'info') => {
+    showToast: (message, type = 'info', onRetry) => {
         const id = Date.now().toString()
         set((state) => ({
-            toasts: [...state.toasts, { id, message, type }]
+            toasts: [...state.toasts, { id, message, type, onRetry }]
         }))
-        // Auto-dismiss after 3 seconds
+        // Auto-dismiss after 5 seconds for errors with retry, 3 seconds otherwise
+        const duration = onRetry ? 5000 : 3000
         setTimeout(() => {
             set((state) => ({
                 toasts: state.toasts.filter((t) => t.id !== id)
             }))
-        }, 3000)
+        }, duration)
     },
     hideToast: (id) => {
         set((state) => ({
