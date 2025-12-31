@@ -321,7 +321,7 @@ export default function ProjectPage() {
                                         className="px-3 py-2 text-white/50 hover:text-white text-sm hover:bg-white/10 rounded-lg transition-all"
                                         title="修改系統提示詞"
                                     >
-                                        ⚙️ 設定提示詞
+                                        ⚙️ 系統提示詞
                                     </button>
                                     {isSaving && <span className="text-xs text-white/50">保存中...</span>}
                                     <button
@@ -338,10 +338,18 @@ export default function ProjectPage() {
                             <textarea
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
+                                onBlur={handleSave}
                                 placeholder={`在此輸入${STAGE_INFO[currentStage].name}內容，或點擊「AI 生成」自動生成...`}
                                 className="w-full h-[60vh] p-6 bg-transparent text-white placeholder-white/30 resize-none focus:outline-none text-sm leading-relaxed"
                                 disabled={getStageStatus(currentStage) === 'locked'}
                             />
+
+                            {/* Word Count */}
+                            <div className="px-4 py-2 border-t border-white/10 bg-white/5 flex justify-end">
+                                <span className="text-xs text-white/50">
+                                    字數：{content.length} 字
+                                </span>
+                            </div>
                         </div>
 
                         {/* Tips */}
