@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { StageType, Stage, STAGE_INFO, STAGE_ORDER, StageStatus } from '@/types'
 import ExportModal from '@/components/ExportModal'
+import PromptEditorModal from '@/components/PromptEditorModal'
 import VersionHistory from '@/components/editor/VersionHistory'
 
 interface Project {
@@ -27,6 +28,7 @@ export default function ProjectPage() {
     const [loading, setLoading] = useState(true)
     const [showExport, setShowExport] = useState(false)
     const [showVersions, setShowVersions] = useState(false)
+    const [showPromptEdit, setShowPromptEdit] = useState(false)
     const [showEditProject, setShowEditProject] = useState(false)
     const [editName, setEditName] = useState('')
     const [editDescription, setEditDescription] = useState('')
@@ -44,7 +46,7 @@ export default function ProjectPage() {
 
     const fetchProject = async () => {
         try {
-            const res = await fetch(`/api/v1/projects/${projectId}`)
+            const res = await fetch(`/api/v1/projects/${projectId}`, { cache: 'no-store' })
             if (res.ok) {
                 const data = await res.json()
                 setProject(data)
@@ -58,7 +60,7 @@ export default function ProjectPage() {
         try {
             const stageData: Record<StageType, Stage> = {} as Record<StageType, Stage>
             for (const stageType of STAGE_ORDER) {
-                const res = await fetch(`/api/v1/projects/${projectId}/stages/${stageType}`)
+                const res = await fetch(`/api/v1/projects/${projectId}/stages/${stageType}`, { cache: 'no-store' })
                 if (res.ok) {
                     stageData[stageType] = await res.json()
                 }
@@ -93,7 +95,9 @@ export default function ProjectPage() {
     const handleGenerate = async () => {
         setIsGenerating(true)
         try {
-            const res = await fetch('/api/v1/ai/generate', {
+            // 直接請求後端 API 以避免 Next.js 代理超時問題
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+            const res = await fetch(`${backendUrl}/api/v1/ai/generate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -104,6 +108,22 @@ export default function ProjectPage() {
             if (res.ok) {
                 const data = await res.json()
                 setContent(data.content)
+
+                // Optimistically update stages to prevent useEffect from overwriting with old data
+                setStages(prev => {
+                    const current = prev[currentStage]
+                    if (!current) return prev
+                    return {
+                        ...prev,
+                        [currentStage]: {
+                            ...current,
+                            content: data.content,
+                            status: 'in_progress', // AI generation enables usage
+                            last_ai_model: data.model
+                        }
+                    }
+                })
+
                 fetchStages() // Refresh stages to get updated status
             } else {
                 const error = await res.json()
@@ -118,7 +138,12 @@ export default function ProjectPage() {
     }
 
     const getStageStatus = (stageType: StageType): StageStatus => {
-        return stages[stageType]?.status || 'locked'
+        const status = stages[stageType]?.status
+        // Treat locked stages as unlocked to allow access to all steps
+        if (!status || status === 'locked') {
+            return 'unlocked'
+        }
+        return status
     }
 
     const canAccessStage = (stageType: StageType): boolean => {
@@ -291,6 +316,13 @@ export default function ProjectPage() {
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setShowPromptEdit(true)}
+                                        className="px-3 py-2 text-white/50 hover:text-white text-sm hover:bg-white/10 rounded-lg transition-all"
+                                        title="修改系統提示詞"
+                                    >
+                                        ⚙️ 設定提示詞
+                                    </button>
                                     {isSaving && <span className="text-xs text-white/50">保存中...</span>}
                                     <button
                                         onClick={handleSave}
@@ -329,6 +361,14 @@ export default function ProjectPage() {
                     projectId={project.id}
                     projectName={project.name}
                     onClose={() => setShowExport(false)}
+                />
+            )}
+
+            {/* Prompt Editor Modal */}
+            {showPromptEdit && (
+                <PromptEditorModal
+                    stageType={currentStage}
+                    onClose={() => setShowPromptEdit(false)}
                 />
             )}
 

@@ -10,6 +10,7 @@ STAGE_PROMPTS = {
     StageType.IDEA: """你是一位專業的故事開發顧問。請為以下專案發想創意概念：
 
 專案名稱：{project_name}
+專案描述：{project_description}
 用戶輸入（如有）：{idea}
 
 請從以下幾個方面進行發想和擴展：
@@ -25,6 +26,8 @@ STAGE_PROMPTS = {
 
 靈感概念：
 {idea}
+
+用戶補充說明（如有）：{story}
 
 請包含以下元素：
 1. 故事設定（時間、地點、背景）
@@ -42,6 +45,8 @@ STAGE_PROMPTS = {
 故事大綱：
 {story}
 
+用戶補充說明（如有）：{script}
+
 劇本格式要求：
 1. 場景標題格式：場號. 場景/地點 - 時間
 2. 動作描述：簡潔描述場景和動作
@@ -52,10 +57,15 @@ STAGE_PROMPTS = {
 
 請撰寫完整的劇本初稿，包含所有場景和對話。使用繁體中文。""",
 
-    StageType.CHARACTER: """你是一位角色設計專家。請根據劇本內容，為每個主要角色創建詳細的角色設計：
+    StageType.CHARACTER: """你是一位角色設計專家。請根據故事大綱和劇本內容，為每個主要角色創建詳細的角色設計：
+
+故事大綱：
+{story}
 
 劇本內容：
 {script}
+
+用戶補充說明（如有）：{character}
 
 角色設計請包含：
 1. 基本資料（姓名、年齡、職業）
@@ -68,10 +78,15 @@ STAGE_PROMPTS = {
 
 請用繁體中文詳細描述每個主要角色。""",
 
-    StageType.SCENE: """你是一位專業的美術指導。請根據劇本內容，設計主要場景：
+    StageType.SCENE: """你是一位專業的美術指導。請根據故事大綱和劇本內容，設計主要場景：
+
+故事大綱：
+{story}
 
 劇本內容：
 {script}
+
+用戶補充說明（如有）：{scene}
 
 場景設計請包含：
 1. 場景名稱與類型
@@ -83,10 +98,15 @@ STAGE_PROMPTS = {
 
 請為劇本中的每個主要場景提供詳細的設計說明。使用繁體中文。""",
 
-    StageType.STORYBOARD: """你是一位專業的分鏡師。請根據劇本內容，創建分鏡腳本：
+    StageType.STORYBOARD: """你是一位專業的分鏡師。請根據故事大綱和劇本內容，創建分鏡腳本：
+
+故事大綱：
+{story}
 
 劇本內容：
 {script}
+
+用戶補充說明（如有）：{storyboard}
 
 分鏡格式：
 鏡號 | 景別 | 運鏡 | 畫面描述 | 對白/音效 | 時長
@@ -96,16 +116,12 @@ STAGE_PROMPTS = {
 
 請為每個場景創建完整的分鏡表。使用繁體中文。""",
 
-    StageType.IMAGE_PROMPT: """你是一位 AI 圖像生成專家。請根據分鏡腳本和角色/場景設計，為每個鏡頭生成 AI 圖像提示詞：
+    StageType.IMAGE_PROMPT: """你是一位 AI 圖像生成專家。請根據分鏡腳本，為每個鏡頭生成 AI 圖像提示詞：
 
 分鏡腳本：
 {storyboard}
 
-角色設計：
-{character}
-
-場景設計：
-{scene}
+用戶補充說明（如有）：{image_prompt}
 
 提示詞格式要求：
 1. 使用英文
@@ -125,6 +141,8 @@ Negative: [負面提示詞]
 分鏡腳本：
 {storyboard}
 
+用戶補充說明（如有）：{motion_prompt}
+
 動態提示詞格式要求：
 1. 使用英文
 2. 包含：主體動作、運鏡描述、時長建議
@@ -140,6 +158,11 @@ Duration: [建議時長]
 }
 
 
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from app.models.system_prompt import SystemPrompt
+
+
 class PromptService:
     """Service for building AI prompts."""
     
@@ -147,13 +170,24 @@ class PromptService:
         self, 
         stage_type: StageType, 
         context: Dict[str, str],
+        db: Session,
         custom_prompt: Optional[str] = None
     ) -> str:
         """Build a complete prompt for the given stage."""
         if custom_prompt:
             return self._format_prompt(custom_prompt, context)
         
-        template = STAGE_PROMPTS.get(stage_type, "")
+        # Try to get from DB first
+        stmt = select(SystemPrompt).where(SystemPrompt.stage == stage_type.value)
+        db_prompt = db.execute(stmt).scalar_one_or_none()
+        
+        template = ""
+        if db_prompt:
+            template = db_prompt.content
+        else:
+            # Fallback to hardcoded default
+            template = STAGE_PROMPTS.get(stage_type, "")
+            
         if not template:
             raise ValueError(f"No template found for stage: {stage_type}")
         

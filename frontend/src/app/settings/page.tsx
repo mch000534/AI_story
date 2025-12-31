@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import SystemPromptSettings from './SystemPromptSettings'
 
 interface AISettings {
     id: number
@@ -335,6 +336,8 @@ export default function SettingsPage() {
                         </div>
                     )}
                 </section>
+
+                <SystemPromptSettings />
             </main>
 
             {/* Add/Edit Settings Modal */}

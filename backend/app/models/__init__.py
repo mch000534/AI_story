@@ -4,6 +4,7 @@ from .project import Project
 from .stage import Stage
 from .stage_version import StageVersion
 from .ai_settings import AISettings
+from .system_prompt import SystemPrompt
 
 __all__ = [
     "StageType",
@@ -15,4 +16,5 @@ __all__ = [
     "Stage",
     "StageVersion",
     "AISettings",
+    "SystemPrompt",
 ]

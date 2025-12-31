@@ -38,14 +38,14 @@ STAGE_ORDER = [
 
 # Stage dependencies - what stages are needed to generate each stage
 STAGE_DEPENDENCIES = {
-    StageType.IDEA: [],
-    StageType.STORY: [StageType.IDEA],
-    StageType.SCRIPT: [StageType.STORY],
-    StageType.CHARACTER: [StageType.SCRIPT],
-    StageType.SCENE: [StageType.SCRIPT],
-    StageType.STORYBOARD: [StageType.SCRIPT],
-    StageType.IMAGE_PROMPT: [StageType.STORYBOARD, StageType.CHARACTER, StageType.SCENE],
-    StageType.MOTION_PROMPT: [StageType.STORYBOARD],
+    StageType.IDEA: [],  # 參考：專案名稱、描述、輸入的內容
+    StageType.STORY: [StageType.IDEA],  # 參考：靈感發想、輸入的內容
+    StageType.SCRIPT: [StageType.STORY],  # 參考：故事大綱、輸入的內容
+    StageType.CHARACTER: [StageType.STORY, StageType.SCRIPT],  # 參考：故事大綱、劇本初稿、輸入的內容
+    StageType.SCENE: [StageType.STORY, StageType.SCRIPT],  # 參考：故事大綱、劇本初稿、輸入的內容
+    StageType.STORYBOARD: [StageType.STORY, StageType.SCRIPT],  # 參考：故事大綱、劇本初稿、輸入的內容
+    StageType.IMAGE_PROMPT: [StageType.STORYBOARD],  # 參考：分鏡腳本、輸入的內容
+    StageType.MOTION_PROMPT: [StageType.STORYBOARD],  # 參考：分鏡腳本、輸入的內容
 }
 
 # Stage display names

@@ -127,7 +127,10 @@ class ProjectService:
         if not project:
             return {}
         
-        context = {"project_name": project.name}
+        context = {
+            "project_name": project.name,
+            "project_description": project.description or ""
+        }
         
         for stage in project.stages:
             if stage.content:

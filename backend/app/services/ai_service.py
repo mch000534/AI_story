@@ -57,6 +57,7 @@ class AIService:
         prompt = self.prompt_service.build_prompt(
             stage.stage_type,
             context,
+            self.db,
             custom_prompt
         )
         
@@ -102,6 +103,7 @@ class AIService:
         prompt = self.prompt_service.build_prompt(
             stage.stage_type,
             context,
+            self.db,
             custom_prompt
         )
         

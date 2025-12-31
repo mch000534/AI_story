@@ -42,6 +42,9 @@ async def generate_content(data: AIGenerateRequest, db: Session = Depends(get_db
     # Get context from previous stages
     context = project_service.get_stage_context(data.project_id, data.stage_type)
     
+    # Store model name before generation (session commit invalidates the object)
+    model_name = settings.model
+
     # Generate content
     try:
         content = await ai_service.generate_content(
@@ -55,7 +58,7 @@ async def generate_content(data: AIGenerateRequest, db: Session = Depends(get_db
         
         return AIGenerateResponse(
             content=content,
-            model=settings.model,
+            model=model_name,
             stage_type=data.stage_type
         )
     except Exception as e:
