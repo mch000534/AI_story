@@ -66,6 +66,17 @@ export default function SettingsPage() {
         }
     }, [formData.api_key, formData.base_url, showForm])
 
+    // ESC to close modal
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && showForm) {
+                resetForm()
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [showForm])
+
     const fetchModelsAuto = async () => {
         if (!formData.api_key || !formData.base_url) return
 

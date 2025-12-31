@@ -141,6 +141,17 @@ function CreateProjectModal({
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
 
+    // ESC to close
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                onClose()
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [onClose])
+
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md animate-slideUp">

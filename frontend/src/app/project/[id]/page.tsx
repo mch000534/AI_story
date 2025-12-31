@@ -87,6 +87,59 @@ export default function ProjectPage() {
         }
     }, [currentStage, stages])
 
+    // Keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            const isMod = e.metaKey || e.ctrlKey
+
+            // ESC to close modals
+            if (e.key === 'Escape') {
+                if (showExport) setShowExport(false)
+                if (showPromptEdit) setShowPromptEdit(false)
+                if (showEditProject) setShowEditProject(false)
+                return
+            }
+
+            // Don't trigger shortcuts when typing in inputs
+            const target = e.target as HTMLElement
+            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                // Allow Ctrl+S even in editor
+                if (isMod && e.key === 's') {
+                    e.preventDefault()
+                    handleSave()
+                    showToast('已保存', 'success')
+                }
+                return
+            }
+
+            if (isMod && e.key === 's') {
+                e.preventDefault()
+                handleSave()
+                showToast('已保存', 'success')
+            } else if (isMod && e.key === 'g') {
+                e.preventDefault()
+                if (!isGenerating) {
+                    handleGenerate()
+                }
+            } else if (isMod && e.key === 'ArrowLeft') {
+                e.preventDefault()
+                const currentIndex = STAGE_ORDER.indexOf(currentStage)
+                if (currentIndex > 0) {
+                    navigateToStage(STAGE_ORDER[currentIndex - 1])
+                }
+            } else if (isMod && e.key === 'ArrowRight') {
+                e.preventDefault()
+                const currentIndex = STAGE_ORDER.indexOf(currentStage)
+                if (currentIndex < STAGE_ORDER.length - 1) {
+                    navigateToStage(STAGE_ORDER[currentIndex + 1])
+                }
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [showExport, showPromptEdit, showEditProject, isGenerating, currentStage])
+
     // Handle save manually (e.g. on blur or button click)
     const handleSave = async () => {
         await saveNow()
