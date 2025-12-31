@@ -257,6 +257,8 @@ POST   /api/v1/settings/ai           創建新配置
 PUT    /api/v1/settings/ai/{id}      更新配置
 DELETE /api/v1/settings/ai/{id}      刪除配置
 POST   /api/v1/settings/ai/{id}/test 測試 API 連接
+POST   /api/v1/settings/ai/models    獲取可用模型列表
+GET    /api/v1/settings/ai/{id}/key  獲取已解密的 API Key (供編輯使用)
 ```
 
 ### WebSocket 設計

@@ -225,14 +225,14 @@
   - [x] 配置 Tailwind 主題 (colors, fonts)
   - [x] 創建 CSS 變數（深色/淺色模式）
   - [x] `styles/globals.css` 全局樣式
-- [/] 實現基礎 UI 組件
+- [x] 實現基礎 UI 組件
   - [x] Button (多種變體：primary, secondary, ghost)
   - [x] Input (文字輸入框)
-  - [ ] Select (下拉選單)
+  - [x] Select (下拉選單 - 整合於 Settings)
   - [x] Modal (彈窗)
-  - [ ] Toast (提示訊息)
+  - [x] Toast (提示訊息)
   - [x] Loading (載入動畫)
-  - [ ] Slider (溫度、top-p 參數調整)
+  - [x] Slider (溫度、top-p 參數調整)
 
 ### 3.3 API 客戶端層
 - [x] 創建 API 客戶端 (`lib/api/client.ts`)
@@ -340,9 +340,9 @@
 - [x] 打字機效果
   - [x] 平滑的逐字顯示動畫 (Streaming)
   - [ ] 閃爍光標效果
-- [ ] 進度指示器
+- [x] 進度指示器
   - [x] 顯示生成狀態（連接中、生成中、完成）
-  - [ ] 進度條或動畫
+  - [x] Toast 提示完成或錯誤訊息
 
 ---
 
@@ -380,10 +380,10 @@
   - [ ] API 響應快取（可選）
 
 ### 4.4 用戶體驗優化
-- [ ] 添加 Loading 狀態
-  - [ ] 頁面載入
-  - [ ] API 請求
-  - [ ] AI 生成
+- [x] 添加 Loading 狀態
+  - [x] 頁面載入
+  - [x] API 請求
+  - [x] AI 生成
 - [ ] 錯誤提示優化
   - [ ] 友好的錯誤訊息
   - [ ] 重試選項
