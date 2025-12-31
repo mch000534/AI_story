@@ -32,6 +32,9 @@ class StageVersion(Base):
     ai_model: Mapped[str | None] = mapped_column(String(100), nullable=True)
     ai_params: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
     
+    # Custom label for version
+    label: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    
     # Timestamp
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, nullable=False

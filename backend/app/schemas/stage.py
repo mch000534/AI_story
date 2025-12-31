@@ -45,6 +45,7 @@ class StageVersionResponse(BaseModel):
     source: str
     ai_model: Optional[str] = None
     ai_params: Optional[Dict[str, Any]] = None
+    label: Optional[str] = None
     created_at: datetime
     
     class Config:

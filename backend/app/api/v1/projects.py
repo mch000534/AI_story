@@ -172,6 +172,64 @@ def restore_version(
     return _stage_to_response(stage)
 
 
+@router.put("/{project_id}/stages/{stage_type}/versions/{version_id}")
+def rename_version(
+    project_id: int,
+    stage_type: StageType,
+    version_id: int,
+    data: dict,
+    db: Session = Depends(get_db)
+):
+    """Rename a version with a custom label."""
+    service = ProjectService(db)
+    stage = service.get_stage(project_id, stage_type)
+    if not stage:
+        raise HTTPException(status_code=404, detail="Stage not found")
+    
+    # Find version
+    version = db.query(StageVersion).filter(
+        StageVersion.id == version_id,
+        StageVersion.stage_id == stage.id
+    ).first()
+    
+    if not version:
+        raise HTTPException(status_code=404, detail="Version not found")
+    
+    # Update label
+    version.label = data.get("label", "")
+    db.commit()
+    
+    return {"message": "Version renamed successfully", "label": version.label}
+
+
+@router.delete("/{project_id}/stages/{stage_type}/versions/{version_id}")
+def delete_version(
+    project_id: int,
+    stage_type: StageType,
+    version_id: int,
+    db: Session = Depends(get_db)
+):
+    """Delete a version."""
+    service = ProjectService(db)
+    stage = service.get_stage(project_id, stage_type)
+    if not stage:
+        raise HTTPException(status_code=404, detail="Stage not found")
+    
+    # Find version
+    version = db.query(StageVersion).filter(
+        StageVersion.id == version_id,
+        StageVersion.stage_id == stage.id
+    ).first()
+    
+    if not version:
+        raise HTTPException(status_code=404, detail="Version not found")
+    
+    db.delete(version)
+    db.commit()
+    
+    return {"message": "Version deleted successfully"}
+
+
 def _project_to_response(project) -> ProjectResponse:
     """Convert project model to response."""
     return ProjectResponse(
@@ -211,6 +269,7 @@ def _version_to_response(version: StageVersion) -> StageVersionResponse:
         source=version.source,
         ai_model=version.ai_model,
         ai_params=json.loads(version.ai_params) if version.ai_params else None,
+        label=version.label,
         created_at=version.created_at
     )
 
