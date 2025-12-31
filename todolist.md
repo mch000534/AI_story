@@ -268,15 +268,15 @@
 - [x] **SettingsStore** (`stores/settingsStore.ts`)
   - [x] State: aiSettings, currentSettings
   - [x] Actions: fetchSettings, saveSettings, testConnection, setDefaultSettings
-- [ ] **UIStore** (`stores/uiStore.ts`)
-  - [ ] State: theme, sidebarOpen, modals
-  - [ ] Actions: toggleTheme, toggleSidebar, openModal, closeModal
+- [x] **UIStore** (`stores/uiStore.ts`)
+  - [x] State: theme, sidebarOpen, modals
+  - [x] Actions: toggleTheme, toggleSidebar, openModal, closeModal
 
 ### 3.6 自定義 Hooks
 - [ ] `useProject` (`hooks/useProject.ts`) - (已整合至 Store)
 - [x] **useAI** (`hooks/useAI.ts`) - 封裝 WebSocket 邏輯
 - [x] **useAutoSave** (`hooks/useAutoSave.ts`) - 自動保存邏輯
-- [ ] **useStageNavigation** (`hooks/useStageNavigation.ts`) - 階段導航邏輯
+- [x] **useStageNavigation** (`hooks/useStageNavigation.ts`) - 階段導航邏輯
 
 ### 3.7 核心頁面組件
 - [x] **首頁/專案列表** (`app/page.tsx`)

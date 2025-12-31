@@ -7,11 +7,14 @@ import { StageType, Stage, STAGE_INFO, STAGE_ORDER, StageStatus } from '@/types'
 import ExportModal from '@/components/ExportModal'
 import PromptEditorModal from '@/components/PromptEditorModal'
 import VersionHistory from '@/components/editor/VersionHistory'
+import RichTextEditor from '@/components/editor/RichTextEditor'
 
 import { useProjectStore } from '@/stores/projectStore'
 import { useStageStore } from '@/stores/stageStore'
 import { useAI } from '@/hooks/useAI'
 import { useAutoSave } from '@/hooks/useAutoSave'
+import { useStageNavigation } from '@/hooks/useStageNavigation'
+import { useUIStore } from '@/stores/uiStore'
 
 export default function ProjectPage() {
     const params = useParams()
@@ -31,8 +34,13 @@ export default function ProjectPage() {
         onError: (err) => alert(`AI 生成錯誤: ${err}`)
     })
 
-    // Local state
-    const [currentStage, setCurrentStage] = useState<StageType>('idea')
+    // Navigation
+    const { currentStage, navigateToStage } = useStageNavigation()
+
+    // UI State
+    const { isSidebarOpen, toggleSidebar } = useUIStore()
+
+    // Local state (removed currentStage)
 
     // Auto Save
     const { isSaving, hasUnsavedChanges, saveNow } = useAutoSave({
@@ -141,6 +149,12 @@ export default function ProjectPage() {
                         <Link href="/" className="text-white/70 hover:text-white">
                             ← 返回
                         </Link>
+                        <button
+                            onClick={toggleSidebar}
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                            {isSidebarOpen ? '◀' : '▶'}
+                        </button>
                         <h1 className="text-xl font-semibold text-white">{project?.name}</h1>
                         <button
                             onClick={() => {
@@ -175,7 +189,10 @@ export default function ProjectPage() {
 
             <div className="flex">
                 {/* Stage Navigator Sidebar */}
-                <aside className="w-64 border-r border-white/10 h-[calc(100vh-65px)] sticky top-[65px] overflow-y-auto">
+                <aside
+                    className={`${isSidebarOpen ? 'w-64 border-r' : 'w-0 overflow-hidden'
+                        } border-white/10 h-[calc(100vh-65px)] sticky top-[65px] transition-all duration-300 ease-in-out bg-slate-900/50 backdrop-blur-sm`}
+                >
                     <nav className="p-4">
                         <h2 className="text-sm font-medium text-white/50 mb-4">創作階段</h2>
                         <ul className="space-y-2">
@@ -188,7 +205,7 @@ export default function ProjectPage() {
                                 return (
                                     <li key={stageType}>
                                         <button
-                                            onClick={() => canAccess && setCurrentStage(stageType)}
+                                            onClick={() => canAccess && navigateToStage(stageType)}
                                             disabled={!canAccess}
                                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all ${isActive
                                                 ? 'bg-purple-600/30 text-white border border-purple-500/50'
@@ -279,19 +296,20 @@ export default function ProjectPage() {
                             </div>
 
                             {/* Text Editor */}
-                            <textarea
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                onBlur={handleSave}
-                                placeholder={`在此輸入${STAGE_INFO[currentStage].name}內容，或點擊「AI 生成」自動生成...`}
-                                className="w-full h-[60vh] p-6 bg-transparent text-white placeholder-white/30 resize-none focus:outline-none text-sm leading-relaxed"
-                                disabled={getStageStatus(currentStage) === 'locked'}
-                            />
+                            <div className="flex-1 bg-slate-950/20">
+                                <RichTextEditor
+                                    content={content}
+                                    onChange={setContent}
+                                    onBlur={handleSave}
+                                    placeholder={`在此輸入${STAGE_INFO[currentStage]?.name}內容，或點擊「AI 生成」自動生成...`}
+                                    editable={getStageStatus(currentStage) !== 'locked'}
+                                />
+                            </div>
 
                             {/* Word Count */}
                             <div className="px-4 py-2 border-t border-white/10 bg-white/5 flex justify-end">
                                 <span className="text-xs text-white/50">
-                                    字數：{content.length} 字
+                                    字數：{content.replace(/<[^>]*>/g, '').length} 字
                                 </span>
                             </div>
                         </div>

@@ -5,12 +5,14 @@ import { API_ENDPOINTS } from '@/lib/api/endpoints'
 
 interface StageState {
     stages: Record<StageType, Stage>
+    currentStage: StageType
     versions: StageVersion[]
     isLoading: boolean
     isGenerating: boolean
     error: string | null
 
     // Actions
+    setCurrentStage: (stage: StageType) => void
     fetchStages: (projectId: number) => Promise<void>
     updateStageContent: (projectId: number, stageType: StageType, content: string) => Promise<Stage>
     setStageStatus: (stageType: StageType, newStageData: Stage) => void
@@ -24,10 +26,13 @@ interface StageState {
 
 export const useStageStore = create<StageState>((set, get) => ({
     stages: {} as Record<StageType, Stage>,
+    currentStage: 'idea',
     versions: [],
     isLoading: false,
     isGenerating: false,
     error: null,
+
+    setCurrentStage: (stage) => set({ currentStage: stage }),
 
     fetchStages: async (projectId: number) => {
         set({ isLoading: true, error: null })
