@@ -205,25 +205,25 @@ export default function SettingsPage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             {/* Header */}
             <header className="border-b border-white/10 backdrop-blur-sm">
-                <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="text-white/70 hover:text-white">← 返回</Link>
-                        <h1 className="text-xl font-semibold text-white">設定</h1>
+                <div className="container mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <Link href="/" className="text-white/70 hover:text-white text-sm md:text-base">← 返回</Link>
+                        <h1 className="text-lg md:text-xl font-semibold text-white">設定</h1>
                     </div>
                 </div>
             </header>
 
-            <main className="container mx-auto px-6 py-8 max-w-4xl">
+            <main className="container mx-auto px-4 md:px-6 py-4 md:py-8 max-w-4xl">
                 {/* AI Settings Section */}
-                <section className="mb-8">
-                    <div className="flex justify-between items-center mb-6">
+                <section className="mb-6 md:mb-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 md:mb-6">
                         <div>
-                            <h2 className="text-xl font-bold text-white">AI 模型設定</h2>
-                            <p className="text-white/60 text-sm mt-1">配置 AI API 連接以啟用內容生成功能</p>
+                            <h2 className="text-lg md:text-xl font-bold text-white">AI 模型設定</h2>
+                            <p className="text-white/60 text-xs md:text-sm mt-1">配置 AI API 連接以啟用內容生成功能</p>
                         </div>
                         <button
                             onClick={handleAddNew}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium"
+                            className="px-3 md:px-4 py-1.5 md:py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs md:text-sm font-medium"
                         >
                             + 新增配置
                         </button>
@@ -248,25 +248,25 @@ export default function SettingsPage() {
                             </button>
                         </div>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-3 md:space-y-4">
                             {settings.map((setting) => (
                                 <div
                                     key={setting.id}
-                                    className="p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+                                    className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
                                 >
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <h3 className="font-medium text-white">{setting.name}</h3>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <h3 className="font-medium text-white text-sm md:text-base">{setting.name}</h3>
                                                 {setting.is_default && (
                                                     <span className="px-2 py-0.5 bg-purple-500/30 text-purple-300 text-xs rounded">預設</span>
                                                 )}
                                             </div>
-                                            <div className="text-sm text-white/60 mt-1">
+                                            <div className="text-xs md:text-sm text-white/60 mt-1">
                                                 {setting.model}
                                             </div>
                                             <div className="text-xs text-white/40 mt-1">
-                                                溫度: {setting.temperature} | Top-P: {setting.top_p} | Max Tokens: {setting.max_tokens}
+                                                溫度: {setting.temperature} | Top-P: {setting.top_p} | Max: {setting.max_tokens}
                                             </div>
                                             <div className="text-xs text-white/40 mt-1">
                                                 {setting.base_url}
