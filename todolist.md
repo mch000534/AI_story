@@ -439,20 +439,20 @@
   - [ ] 包含專案元數據
 
 ### 5.3 提示詞模板系統
-- [ ] 8 個階段的專業提示詞模板
-  - [ ] Idea → Story
-  - [ ] Story → Script
-  - [ ] Script → Character Design
-  - [ ] Script → Scene Design
-  - [ ] Script → Storyboard
-  - [ ] Storyboard → Image Prompts
-  - [ ] Storyboard → Blocking Prompts
-- [ ] 提示詞變數替換
-  - [ ] 注入前置階段內容
-  - [ ] 支持自定義變數
-- [ ] 用戶自定義提示詞（可選）
-  - [ ] 保存常用提示詞
-  - [ ] 提示詞模板管理
+- [x] 8 個階段的專業提示詞模板
+  - [x] Idea → Story
+  - [x] Story → Script
+  - [x] Script → Character Design
+  - [x] Script → Scene Design
+  - [x] Script → Storyboard
+  - [x] Storyboard → Image Prompts
+  - [x] Storyboard → Blocking Prompts
+- [x] 提示詞變數替換
+  - [x] 注入前置階段內容 ({idea}, {story}, {script} 等)
+  - [x] 支持自定義變數 ({project_name}, {project_description})
+- [x] 用戶自定義提示詞
+  - [x] 保存常用提示詞 (SystemPrompt 資料庫模型)
+  - [x] 提示詞模板管理 (設定頁面 SystemPromptSettings)
 
 ### 5.4 多 AI 模型支持
 - [ ] 測試不同 AI API

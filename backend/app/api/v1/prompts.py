@@ -13,7 +13,7 @@ from app.schemas.system_prompt import (
     SystemPromptUpdate, 
     SystemPromptResponse
 )
-from app.services.prompt_service import STAGE_PROMPTS
+from app.services.prompt_service import load_default_prompts
 
 router = APIRouter(prefix="/prompts", tags=["Prompts"])
 
@@ -26,8 +26,9 @@ def list_prompts(db: Session = Depends(get_db)):
     
     # Initialize if empty
     if not prompts:
+        default_prompts = load_default_prompts()
         initial_prompts = []
-        for stage, content in STAGE_PROMPTS.items():
+        for stage, content in default_prompts.items():
             db_prompt = SystemPrompt(stage=stage.value, content=content)
             db.add(db_prompt)
             initial_prompts.append(db_prompt)
@@ -47,8 +48,9 @@ def get_prompt(stage: StageType, db: Session = Depends(get_db)):
     
     if not prompt:
         # If not found but exists in defaults, create it
-        if stage in STAGE_PROMPTS:
-            prompt = SystemPrompt(stage=stage.value, content=STAGE_PROMPTS[stage])
+        default_prompts = load_default_prompts()
+        if stage in default_prompts:
+            prompt = SystemPrompt(stage=stage.value, content=default_prompts[stage])
             db.add(prompt)
             db.commit()
             db.refresh(prompt)
@@ -82,13 +84,14 @@ def update_prompt(
 @router.post("/{stage}/reset", response_model=SystemPromptResponse)
 def reset_prompt(stage: StageType, db: Session = Depends(get_db)):
     """Reset system prompt to default."""
-    if stage not in STAGE_PROMPTS:
+    default_prompts = load_default_prompts()
+    if stage not in default_prompts:
         raise HTTPException(status_code=400, detail="No default prompt for this stage")
         
     stmt = select(SystemPrompt).where(SystemPrompt.stage == stage.value)
     prompt = db.execute(stmt).scalar_one_or_none()
     
-    default_content = STAGE_PROMPTS[stage]
+    default_content = default_prompts[stage]
     
     if prompt:
         prompt.content = default_content
