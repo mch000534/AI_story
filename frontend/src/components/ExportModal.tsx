@@ -97,14 +97,22 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
     }
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-slate-800 rounded-xl p-6 w-full max-w-md animate-slideUp">
-                <h2 className="text-xl font-bold text-white mb-4">匯出專案</h2>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 md:p-4">
+            <div className="bg-slate-800 rounded-xl p-4 md:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto animate-slideUp">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg md:text-xl font-bold text-white">匯出專案</h2>
+                    <button
+                        onClick={onClose}
+                        className="text-white/50 hover:text-white text-xl p-1"
+                    >
+                        ✕
+                    </button>
+                </div>
 
                 <div className="space-y-3">
                     {/* Script exports */}
-                    <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                        <h3 className="font-medium text-white mb-3">📜 劇本</h3>
+                    <div className="p-3 md:p-4 bg-white/5 rounded-lg border border-white/10">
+                        <h3 className="font-medium text-white mb-2 md:mb-3 text-sm md:text-base">📜 劇本</h3>
                         <div className="flex flex-wrap gap-2">
                             <ExportButton
                                 label="PDF"
@@ -125,8 +133,8 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
                     </div>
 
                     {/* Storyboard export */}
-                    <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                        <h3 className="font-medium text-white mb-3">🎬 分鏡表</h3>
+                    <div className="p-3 md:p-4 bg-white/5 rounded-lg border border-white/10">
+                        <h3 className="font-medium text-white mb-2 md:mb-3 text-sm md:text-base">🎬 分鏡表</h3>
                         <ExportButton
                             label="Excel"
                             loading={exporting === 'storyboard'}
@@ -135,8 +143,8 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
                     </div>
 
                     {/* Prompts export */}
-                    <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                        <h3 className="font-medium text-white mb-3">🖼️ AI 提示詞</h3>
+                    <div className="p-3 md:p-4 bg-white/5 rounded-lg border border-white/10">
+                        <h3 className="font-medium text-white mb-2 md:mb-3 text-sm md:text-base">🖼️ AI 提示詞</h3>
                         <ExportButton
                             label="文字檔"
                             loading={exporting === 'prompts'}
@@ -145,9 +153,9 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
                     </div>
 
                     {/* Complete export */}
-                    <div className="p-4 bg-purple-500/20 rounded-lg border border-purple-500/30">
-                        <h3 className="font-medium text-white mb-3">📦 完整專案</h3>
-                        <p className="text-xs text-white/60 mb-3">
+                    <div className="p-3 md:p-4 bg-purple-500/20 rounded-lg border border-purple-500/30">
+                        <h3 className="font-medium text-white mb-2 md:mb-3 text-sm md:text-base">📦 完整專案</h3>
+                        <p className="text-xs text-white/60 mb-2 md:mb-3">
                             包含所有階段內容、劇本 PDF、分鏡表 Excel、提示詞文字檔
                         </p>
                         <ExportButton
@@ -161,7 +169,7 @@ export default function ExportModal({ projectId, projectName, onClose }: ExportM
 
                 <button
                     onClick={onClose}
-                    className="w-full mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg"
+                    className="w-full mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm md:text-base"
                 >
                     關閉
                 </button>

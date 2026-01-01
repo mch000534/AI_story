@@ -18,13 +18,22 @@ interface VersionCompareModalProps {
     }
     onClose: () => void
     onApply?: (content: string) => void
+    // Navigation props
+    canNavigateLeft?: { prev: boolean; next: boolean }
+    canNavigateRight?: { prev: boolean; next: boolean }
+    onNavigateLeft?: (direction: 'prev' | 'next') => void
+    onNavigateRight?: (direction: 'prev' | 'next') => void
 }
 
 export default function VersionCompareModal({
     leftVersion,
     rightVersion,
     onClose,
-    onApply
+    onApply,
+    canNavigateLeft,
+    canNavigateRight,
+    onNavigateLeft,
+    onNavigateRight
 }: VersionCompareModalProps) {
     // ESC to close
     useEffect(() => {
@@ -61,8 +70,26 @@ export default function VersionCompareModal({
                 {/* Version Headers */}
                 <div className="grid grid-cols-2 gap-4 p-4 border-b border-white/10">
                     <div className="text-center">
-                        <div className="text-sm font-medium text-white">
-                            {leftVersion.label || `版本 ${leftVersion.number}`}
+                        <div className="flex items-center justify-center gap-2">
+                            <button
+                                onClick={() => onNavigateLeft?.('prev')}
+                                disabled={!canNavigateLeft?.prev}
+                                className="p-1 text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                title="上一個版本"
+                            >
+                                ◀
+                            </button>
+                            <div className="text-sm font-medium text-white">
+                                {leftVersion.label || `版本 ${leftVersion.number}`}
+                            </div>
+                            <button
+                                onClick={() => onNavigateLeft?.('next')}
+                                disabled={!canNavigateLeft?.next}
+                                className="p-1 text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                title="下一個版本"
+                            >
+                                ▶
+                            </button>
                         </div>
                         <div className="text-xs text-white/50 mt-1">
                             {new Date(leftVersion.createdAt).toLocaleString('zh-TW')}
@@ -80,8 +107,26 @@ export default function VersionCompareModal({
                         )}
                     </div>
                     <div className="text-center">
-                        <div className="text-sm font-medium text-white">
-                            {rightVersion.label || `版本 ${rightVersion.number}`}
+                        <div className="flex items-center justify-center gap-2">
+                            <button
+                                onClick={() => onNavigateRight?.('prev')}
+                                disabled={!canNavigateRight?.prev}
+                                className="p-1 text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                title="上一個版本"
+                            >
+                                ◀
+                            </button>
+                            <div className="text-sm font-medium text-white">
+                                {rightVersion.label || `版本 ${rightVersion.number}`}
+                            </div>
+                            <button
+                                onClick={() => onNavigateRight?.('next')}
+                                disabled={!canNavigateRight?.next}
+                                className="p-1 text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                title="下一個版本"
+                            >
+                                ▶
+                            </button>
                         </div>
                         <div className="text-xs text-white/50 mt-1">
                             {new Date(rightVersion.createdAt).toLocaleString('zh-TW')}

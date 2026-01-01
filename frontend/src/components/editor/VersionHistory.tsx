@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { StageVersion } from '@/types'
 import VersionCompareModal from './VersionCompareModal'
 
@@ -15,6 +15,7 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
     const [loading, setLoading] = useState(true)
     const [selectedVersion, setSelectedVersion] = useState<StageVersion | null>(null)
     const [compareVersions, setCompareVersions] = useState<StageVersion[]>([])
+    const [compareIndices, setCompareIndices] = useState<[number, number]>([0, 1])
     const [showCompareModal, setShowCompareModal] = useState(false)
 
     useEffect(() => {
@@ -302,6 +303,28 @@ export default function VersionHistory({ projectId, stageType, onRestore }: Vers
                         onRestore(content)
                         setShowCompareModal(false)
                         setCompareVersions([])
+                    }}
+                    canNavigateLeft={{
+                        prev: versions.findIndex(v => v.id === compareVersions[0].id) > 0,
+                        next: versions.findIndex(v => v.id === compareVersions[0].id) < versions.length - 1
+                    }}
+                    canNavigateRight={{
+                        prev: versions.findIndex(v => v.id === compareVersions[1].id) > 0,
+                        next: versions.findIndex(v => v.id === compareVersions[1].id) < versions.length - 1
+                    }}
+                    onNavigateLeft={(direction) => {
+                        const currentIdx = versions.findIndex(v => v.id === compareVersions[0].id)
+                        const newIdx = direction === 'prev' ? currentIdx - 1 : currentIdx + 1
+                        if (newIdx >= 0 && newIdx < versions.length) {
+                            setCompareVersions([versions[newIdx], compareVersions[1]])
+                        }
+                    }}
+                    onNavigateRight={(direction) => {
+                        const currentIdx = versions.findIndex(v => v.id === compareVersions[1].id)
+                        const newIdx = direction === 'prev' ? currentIdx - 1 : currentIdx + 1
+                        if (newIdx >= 0 && newIdx < versions.length) {
+                            setCompareVersions([compareVersions[0], versions[newIdx]])
+                        }
                     }}
                 />
             )}
