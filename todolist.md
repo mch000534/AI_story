@@ -455,15 +455,15 @@
   - [x] 提示詞模板管理 (設定頁面 SystemPromptSettings)
 
 ### 5.4 多 AI 模型支持
-- [ ] 測試不同 AI API
-  - [ ] OpenAI (GPT-4, GPT-3.5)
-  - [ ] Claude (如果有 API)
-  - [ ] 自定義 OpenAI 相容端點
-- [ ] 模型切換界面優化
-  - [ ] 預設模型列表
-  - [ ] 自定義模型輸入
-- [ ] 模型參數保存
-  - [ ] 每個專案可以有獨立配置
+- [x] 測試不同 AI API
+  - [x] OpenAI (GPT-4, GPT-3.5) - 預設支持
+  - [x] Claude 等 - 透過 OpenRouter 支持
+  - [x] 自定義 OpenAI 相容端點 (base_url 可配置)
+- [x] 模型切換界面優化
+  - [x] 預設模型列表 (自動獲取)
+  - [x] 自定義模型輸入
+- [x] 模型參數保存
+  - [x] 可配置多組 AI 設定
 
 ---
 
@@ -508,43 +508,43 @@
 ## 階段 7：文檔與部署
 
 ### 7.1 用戶文檔
-- [ ] 編寫用戶指南 (`docs/USER_GUIDE.md`)
-  - [ ] 快速開始
-  - [ ] 功能介紹
-  - [ ] 常見問題
-  - [ ] 故障排除
+- [x] 編寫用戶指南 (`docs/USER_GUIDE.md`)
+  - [x] 快速開始
+  - [x] 功能介紹
+  - [x] 常見問題
+  - [x] 故障排除
 - [ ] 錄製演示影片（可選）
   - [ ] 基本工作流程
   - [ ] 進階功能
 
 ### 7.2 開發者文檔
-- [ ] API 文檔
-  - [ ] FastAPI 自動生成的 OpenAPI 文檔已足夠
-  - [ ] 補充自定義說明（如有需要）
-- [ ] 部署指南 (`docs/DEPLOYMENT.md`)
-  - [ ] 本地開發環境設置
-  - [ ] Docker 部署
-  - [ ] 雲端部署（如 Railway, Render, Vercel）
-- [ ] 貢獻指南 (`docs/CONTRIBUTING.md`)
+- [x] API 文檔
+  - [x] FastAPI 自動生成的 OpenAPI 文檔已足夠
+  - [x] 補充自定義說明（如有需要）
+- [x] 部署指南 (`docs/DEPLOYMENT.md`)
+  - [x] 本地開發環境設置
+  - [x] Docker 部署
+  - [x] 雲端部署（如 Railway, Render, Vercel）
+- [x] 貢獻指南 (`docs/CONTRIBUTING.md`)
 
 ### 7.3 部署配置
-- [ ] 環境變數配置
-  - [ ] `.env.production` 模板
-  - [ ] 環境變數說明文檔
-- [ ] Docker 優化
-  - [ ] 多階段構建
-  - [ ] 減小鏡像大小
-  - [ ] 健康檢查
-- [ ] CI/CD 設置（可選）
-  - [ ] GitHub Actions
-  - [ ] 自動測試
+- [x] 環境變數配置
+  - [x] `.env.production` 模板
+  - [x] 環境變數說明文檔
+- [x] Docker 優化
+  - [x] 多階段構建
+  - [x] 減小鏡像大小
+  - [x] 健康檢查
+- [x] CI/CD 設置
+  - [x] GitHub Actions
+  - [x] 自動測試
   - [ ] 自動部署
 
 ### 7.4 生產部署
-- [ ] 選擇部署平台
-  - [ ] 前端：Vercel / Netlify
-  - [ ] 後端：Railway / Render / DigitalOcean
-  - [ ] 或使用 Docker Compose 全棧部署
+- [x] 選擇部署平台
+  - [x] 前端：Vercel / Netlify (deploy.yml 模板)
+  - [x] 後端：Railway / Render / DigitalOcean (deploy.yml 模板)
+  - [x] 或使用 Docker Compose 全棧部署
 - [ ] 配置域名和 SSL（可選）
 - [ ] 監控和日誌（可選）
   - [ ] 錯誤追蹤（Sentry）
@@ -562,9 +562,9 @@
   - [ ] 多用戶支持
   - [ ] 權限管理
   - [ ] 實時協作編輯
-- [ ] 模板系統
-  - [ ] 預設故事模板（科幻、愛情、懸疑等）
-  - [ ] 用戶自定義模板
+- [x] 模板系統
+  - [x] 預設故事模板（科幻、愛情、懸疑等）
+  - [x] 用戶自定義模板 (story_templates.yaml)
 - [ ] AI 分析功能
   - [ ] 劇本節奏分析
   - [ ] 角色發展弧線分析

@@ -1,0 +1,78 @@
+# 故事模板配置
+# 用戶可以基於這些模板快速開始創作
+
+templates:
+  - id: sci_fi
+    name: 科幻冒險
+    icon: 🚀
+    description: 太空探索、未來科技、人工智能
+    project:
+      name: 星際遠征
+      description: |
+        一個關於人類探索宇宙邊緣的科幻故事。
+        當太空船發現一個神秘的外星信號，船員們必須決定是繼續前進還是返回地球。
+    stages:
+      idea: |
+        故事類型：硬科幻 / 太空歌劇
+        核心衝突：人類好奇心 vs 未知危險
+        主題：探索、犧牲、人性
+
+  - id: romance
+    name: 浪漫愛情
+    icon: 💕
+    description: 都市愛情、甜蜜邂逅、情感糾葛
+    project:
+      name: 咖啡館的邂逅
+      description: |
+        一對命中注定的戀人在城市角落的咖啡館相遇。
+        從陌生到熟悉，從誤解到理解，最終走向幸福。
+    stages:
+      idea: |
+        故事類型：現代都市愛情
+        核心衝突：愛情與現實的矛盾
+        主題：真愛、成長、陪伴
+
+  - id: mystery
+    name: 懸疑推理
+    icon: 🔍
+    description: 犯罪偵探、驚悚懸疑、層層推理
+    project:
+      name: 消失的證人
+      description: |
+        一樁離奇的命案，唯一的目擊者卻神秘失蹤。
+        偵探必須在有限的時間內找出真相，否則凶手將逍遙法外。
+    stages:
+      idea: |
+        故事類型：本格推理
+        核心衝突：正義 vs 隱藏的真相
+        主題：真相、正義、人性黑暗面
+
+  - id: fantasy
+    name: 奇幻冒險
+    icon: 🗡️
+    description: 魔法世界、史詩冒險、英雄之旅
+    project:
+      name: 龍的傳說
+      description: |
+        一個平凡的少年發現自己是古老預言中的選中之人。
+        他必須踏上尋找神龍的旅程，拯救瀕臨毀滅的王國。
+    stages:
+      idea: |
+        故事類型：史詩奇幻
+        核心衝突：光明 vs 黑暗
+        主題：成長、責任、勇氣
+
+  - id: horror
+    name: 恐怖驚悚
+    icon: 👻
+    description: 超自然恐怖、心理驚悚
+    project:
+      name: 午夜旅館
+      description: |
+        一群大學生在深夜被困在一家廢棄的旅館。
+        隨著夜深，他們發現這裡住著的不只是他們...
+    stages:
+      idea: |
+        故事類型：超自然恐怖
+        核心衝突：生存 vs 未知恐懼
+        主題：恐懼、友情、求生

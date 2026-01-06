@@ -140,6 +140,30 @@ function CreateProjectModal({
 }) {
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
+    const [templates, setTemplates] = useState<{ id: string, name: string, icon: string, description: string }[]>([])
+    const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+
+    useEffect(() => {
+        // Fetch templates
+        fetch('/api/v1/templates/')
+            .then(res => res.json())
+            .then(data => setTemplates(data))
+            .catch(() => { })
+    }, [])
+
+    const handleTemplateSelect = async (templateId: string) => {
+        setSelectedTemplate(templateId)
+        try {
+            const res = await fetch(`/api/v1/templates/${templateId}`)
+            const data = await res.json()
+            if (data.project) {
+                setName(data.project.name)
+                setDescription(data.project.description)
+            }
+        } catch (error) {
+            console.error('Failed to load template:', error)
+        }
+    }
 
     // ESC to close
     useEffect(() => {
@@ -154,8 +178,32 @@ function CreateProjectModal({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4">
-            <div className="bg-slate-800 rounded-xl p-4 md:p-6 w-full max-w-md animate-slideUp">
+            <div className="bg-slate-800 rounded-xl p-4 md:p-6 w-full max-w-lg animate-slideUp max-h-[90vh] overflow-y-auto">
                 <h2 className="text-lg md:text-xl font-bold text-white mb-4">新建專案</h2>
+
+                {/* Template Selection */}
+                {templates.length > 0 && (
+                    <div className="mb-4">
+                        <label className="block text-sm text-white/70 mb-2">選擇模板（可選）</label>
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                            {templates.map(t => (
+                                <button
+                                    key={t.id}
+                                    onClick={() => handleTemplateSelect(t.id)}
+                                    className={`p-2 rounded-lg text-center transition-all ${selectedTemplate === t.id
+                                            ? 'bg-purple-600/30 border-purple-500 border'
+                                            : 'bg-slate-700 hover:bg-slate-600 border border-transparent'
+                                        }`}
+                                    title={t.description}
+                                >
+                                    <span className="text-xl">{t.icon}</span>
+                                    <div className="text-xs text-white/70 mt-1 truncate">{t.name}</div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm text-white/70 mb-1">專案名稱</label>

@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    # Example: Deploy to Railway
+    # - name: Deploy to Railway
+    #   uses: railwayapp/railway-action@v1
+    #   with:
+    #     railway_token: ${{ secrets.RAILWAY_TOKEN }}
+    #     service: backend
+    
+    # Example: Deploy to Render
+    # - name: Deploy to Render
+    #   run: |
+    #     curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+    
+    - name: Build Docker image
+      run: |
+        docker build -t ai-story-backend ./backend
+    
+    - name: Echo deployment info
+      run: |
+        echo "Backend ready for deployment"
+        echo "Configure RAILWAY_TOKEN or RENDER_DEPLOY_HOOK secret to enable auto-deploy"
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    # Vercel auto-deploys from GitHub, no action needed
+    # Or use Vercel CLI:
+    # - name: Deploy to Vercel
+    #   uses: amondnet/vercel-action@v25
+    #   with:
+    #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+    #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+    #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+    
+    - name: Echo deployment info
+      run: |
+        echo "Frontend ready for deployment"
+        echo "Connect to Vercel for auto-deploy or configure secrets"
