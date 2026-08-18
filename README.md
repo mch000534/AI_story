@@ -72,7 +72,7 @@ npm run dev
 ### Docker 運行（可選）
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ## ⚙️ 環境變數
